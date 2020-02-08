@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{finanse}
+\author{bartczukkuba }
+\date{February 2020}
+
+\begin{document}
+
+Procent składany - kapitalizacja
+
+$$R_{t+1} = \frac{P_{t+1} - P_t}{P_t}$$
+
+Total return - z uwzględnionymi dywidendami
+
+Multi-period returns
+
+$$R_{t+k, t} = \prod_{t \leq j \leq t+k-1}(1+R_{j+1, j}) - 1$$
+
+\section{Measures of Risk and Reward}
+Return on risk
+
+Risk free rate
+
+Cytat:
+
+Although there is no perfectly riskless investment, the very short term US Treasury Bill (30 days or less) is typically used as a proxy for the risk free rate.
+
+\subsection{Sharpe ratio}
+
+$$S = \frac{R - R_{risk free}}{Volatility}$$
+
+Where $Volatility$ is most likely some estimator of standard deviation
+
+\subsection{Max Drawdown}
+
+Sharpe ratio uses variance so it doesn't distinguish upward and downward volatility
+
+Max drawdown - max loss between previous high to subsequent low
+
+Calmar ratio
+
+$$MDD = max_t max_{t' > t} P_t - P_{t'}$$
+
+\section{Extreme risk estimates}
+
+Sharpe ratio et c is useful when the outcomes follow Gaussian distribution. They might fail if the distribution in question has fat tails.
+
+Var (value at risk)
+
+\maketitle
+
+\section{Introduction}
+
+\end{document}

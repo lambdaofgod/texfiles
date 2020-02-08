@@ -1,0 +1,157 @@
+\documentclass[11pt,a4paper]{moderncv}
+
+
+\usepackage{graphicx} %package to manage images
+\graphicspath{ {./images/} }
+
+% moderncv themes
+\moderncvtheme[blue]{classic}                 % optional argument are 'blue'
+% (default), 'orange', 'red', 'green', 'grey' and 'roman' (for roman fonts, instead of sans serif fonts) \moderncvtheme[orange]{classic}                % idem
+\input{moderncv-overrides.tex}
+
+% character encoding
+\usepackage[utf8]{inputenc} % Kodowanie UTF8
+\usepackage[MeX]{polski} % Wsparcie dla PL
+
+% adjust the page margins
+\usepackage[scale=0.8]{geometry}
+%\setlength{\hintscolumnwidth}{3cm}						% if you want to change the width of the column with the dates
+%\AtBeginDocument{\setlength{\maketitlenamewidth}{6cm}}  % only for the classic
+% theme, if you want to change the width of your name placeholder (to leave more space for your address details
+%\AtBeginDocument{\recomputelengths}                     % required when changes
+% are made to page layout lengths
+
+% personal data
+\familyname{\\Jakub Bartczuk}
+\email{bartczukkuba@gmail.com}
+\social[linkedin][https://pl.linkedin.com/in/jakub-bartczuk-22179189]{linkedin}
+\social[github][github.com/lambdaofgod]{github.com/lambdaofgod}
+\social[stackoverflow][https://stackoverflow.com/users/2610004/jakub-bartczuk]{stackoverflow}
+\social[cross-validated][https://stats.stackexchange.com/users/121270/jakub-bartczuk]{cross-validated}
+\social[quora][https://www.quora.com/profile/Kuba-Bartczuk]{quora}
+\title{Machine Learning Engineer}               % optional, remove the line if not wanted
+\address{}{}    % optional, remove the
+
+
+\begin{document}
+\maketitle
+
+\section{Intro}
+\cvitem{}{Data scientist/ML engineer. Solved problems in image processing, sound processing, information retrieval and NLP. Used deep learning, supervised, weakly supervised, unsupervised, transfer and few/zero-shot learning. Mostly machine learning in  real world, low quality/small/noisy data regimes.}
+
+\section{Skills}
+\cvitem{General skills}{OOP, big data, functional programming}
+\cvitem{Programming Languages}{
+\begin{itemize}
+    \item Good knowledge: Python, Scala
+    \item Basic knowledge: R, Octave/Matlab, Java, Clojure, Haskell, C++
+\end{itemize}{}
+}
+\cvitem{Libraries, frameworks}{numpy, scipy, pandas, pytest}
+\cvitem{Deep Learning}{Keras, Tensorflow, PyTorch, MXNet/Gluon, FastAI, Theano}
+\cvitem{ML Tools}{scikit-learn, gensim, NLTK, XGBoost, BentoML} 
+\cvitem{Cloud Computing}{AWS, GCP}
+\cvitem{Other}{scikit-image, Docker, Kubernetes, Git, Spark, Elasticsearch, Linux}
+
+\section{Projects, blog posts, talks}
+\cvline{Open Source Projects}{}
+\cvline{Creator}{\href{https://github.com/lambdaofgod/findkit}{findkit: A Python library for Content-Based Information Retrieval. Multimodal search using transfer learning and approximate nearest neighbors.
+}}
+    \cvline{Contributor}{\href{https://github.com/gaetangate/text-summarizer}{text\_summarizer: Extractive Summarization, implementation of paper "Centroid-based Text Summarization through Compositionality of Word Embeddings".
+}}
+
+\cvline{Blog post, January 2019}{\href{https://semantive.com/text-summarization-in-python/}{Overview of state of Text Summarization in Python}}
+
+\cvline{Meetup talk, March 2017}{\href{https://github.com/lambdaofgod/lucene4_cookbook_examples/blob/master/notebooks/pydata_geek_week_example.ipynb}{Extending Java/Scala projects with Jupyter-Scala. Talk was given at PyData Wrocław meeting.
+}}
+
+\cvline{Course Project}{
+\href{https://github.com/lambdaofgod/tda-project}{Topological Data Analysis methods for evaluating nonlinear dimensionality reduction (project for Data Mining course). Uses Javaplex (Java TDA library) from Scala.}}
+
+\newpage
+
+\section{Work Experience}
+\cventry{July 2019 - Present}{Machine Learning Engineer}{xBerry}{}{}{
+\begin{itemize}
+    \item Plagiarism detection engine - text and images. Planning, implementing and deployment
+    \item Nudity detection with Computer vision
+    \item Scheduling using artificial intelligence
+\end{itemize}
+}
+\cventry{Oct 2017 - Jun 2019}{Data Scientist}{Semantive}{}{}{
+\begin{itemize}
+ \item Created and deployed search engine for domain specific images using CNNs and approximate nearest neighbours index.
+ \item Used extractive text summarization techniques to build service for effective summarization of scientific documents.
+ \item Created music search engine using transfer learning on Fourier features (STFT).
+ \item Applied Image to Image Translation (Conditional GANs) to image coloring.
+ \item Useq Sequence 2 Sequence methods for abstractive text summarization.
+ \item Tutored interns and junior data scientists.
+ \end{itemize}
+}
+\cventry{Nov 2016 - Sep 2017}{Big Data Engineer}{IT Kontrakt}{(part-time)}{}
+{Worked as a consultant in financial institution.
+\begin{itemize}
+ \item Developed Scala application with some elements in Spark.
+ \item Optimized rule-based classification engine using machine learning (classification algorithms).
+\end{itemize}
+}
+
+\cventry{Jun 2016 - Sep 2016}{Software Developer - Data Mining}{Neurosoft}{(full-time)}{}
+{ Worked on backend of big data application written in Scala and Akka.
+}
+
+\cventry{Apr 2016 - Jun 2016}{Scala Developer}{Datarino}{(part-time)}{}
+{Worked on backend of Scala application (Akka-Http)}
+
+
+\cventry{Oct 2015 - May 2016}{Scala Developer}{Helios Ventures Limited}{(part-time)}{}
+{Worked on backend of Scala application of social media app (written using Play framework)}
+	       
+\section{Courses, certificates}
+\cvline{Feb 2020}{\href{https://www.coursera.org/account/accomplishments/certificate/YR6KFXVLZE87}{End-to-End Machine Learning with TensorFlow on GCP}}
+\cvline{Apr 2019}{\href{https://courses.edx.org/certificates/11126c558a9e4a7697593e15fb591383}{Quantum Machine Learning}}
+\cvline{Mar 2019}{\href{https://courses.edx.org/certificates/7c5d40fb30b8456ebe6d774cec098bf5}{Sparse Representations in Image Processing: From Theory to Practice}}
+\cvline{Dec 2018}{\href{https://courses.edx.org/certificates/c167c6fca2b847ee9555b4af980ca80e}{Sparse Representations in Signal and Image Processing: Fundamentals}}
+\cvline{Dec 2018}{\href{https://www.coursera.org/account/accomplishments/verify/CSQCR26AKASB}{Deep Learning in Computer Vision (Advanced ML Specialization)}}
+\cvline{Oct 2018}{\href{https://www.coursera.org/account/accomplishments/verify/SY7WYHK4P65T
+}{Natural Language Processing (Advanced ML Specialization)}}
+\cvline{Aug 2018}{ \href{https://www.coursera.org/account/accomplishments/certificate/EGYZQHCJ9UAG}{Bayesian Methods for Machine Learning (Advanced ML Specialization)}}
+\cvline{Apr 2018}{ \href{https://www.coursera.org/account/accomplishments/certificate/T59FKJT9C429}{Hinton's Neural Networks for Machine Learning}}
+\cvline{Mar 2018}{\href{https://udemy-certificate.s3.amazonaws.com/pdf/UC-QIJJ6U91.pdf}{Unsupervised Deep Learning in Python (Udemy)
+}}
+\cvline{Mar 2018}{\href{https://www.coursera.org/account/accomplishments/specialization/ZNT3DWVS3TFL}{Deep Learning Specialization (Coursera)}}
+\cvline{Dec 2017}{AWS Certified Solutions Architect Associate}
+\cvline{Sep 2017}{\href{https://www.udemy.com/certificate/UC-8UEXC6U2/}{Data Science: Practical Deep Learning in Theano + TensorFlow (Udemy)}}
+\cvline{Jan 2017}{\href{https://courses.cognitiveclass.ai/certificates/user/327568/course/course-v1:BigDataUniversity+BD0221EN+2016}{Spark MLLib}}
+\cvline{Dec 2016}{\href{https://courses.cognitiveclass.ai/certificates/user/327568/course/course-v1:BigDataUniversity+ML0101EN+2016_T2}{Machine Learning with Python
+}}
+\cvline{Apr 2016}{
+\href{https://prod-cert-bucket.s3.amazonaws.com/downloads/f864b9d7e7a14efebab0beb26adcd931/Statement.pdf}{Statistical Learning (Stanford Lagunita)}
+}
+\cvline{Dec 2015}{\href{https://www.youracclaim.com/badges/b1473fc7-21ee-4f46-ad96-c981c78b6d3d/linked_in_profile}{Big Data Spark Foundations}}
+\cvline{Sep 2014}{
+\href{https://www.coursera.org/maestro/api/certificate/get_certificate?course_id=972303}{Machine Learning (Andrew Ng on Coursera)}
+}
+
+\newpage
+\section{Education}
+\cventry{2019-now}{Data Science MSc}{University of Wrocław}{}{}{}
+\cventry{2011 - 2014}
+{BS studies in Mathematics}{University of Wrocław}{}{}
+{Theoretical Specialization
+Relevant courses: Data Mining, Text Mining, Wavelet Analysis. Activities: talks for Theoretical Math Student group (Topology, Quantum Computing)
+}
+
+ 
+\section{Languages}
+\cvline{}{Polish (native), English (Full professional proficiency)}
+
+
+
+\section{Interests and activities}
+\cvline{}{mathematics, science, ancient history, biking, weight lifting}
+
+\closesection{}
+\renewcommand{\listitemsymbol}{-}
+
+\end{document}
