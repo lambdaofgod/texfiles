@@ -9,13 +9,26 @@
 
 \section{High level}
 
-Information theory deals with properties of coding systems - these properties are defined in terms of sources and their probability distributions.
+Information theory deals with properties of coding systems - these properties are defined in terms of sources,  their probability distributions and code word lengths.
+
+\textbf{Kraft, McMillan theorems} can be used to bound lengths of codes from above, on the other hand \textbf{Shannon's source coding theorem} gives lower bound. Information theory deals with designing efficient codes (entropy encoding).
+
+This has applications in 
+\begin{itemize}
+	\item communication (error correcting codes)
+	\item data compression (use codes which have low mean length)
+	\item portfolio theory (information and portfolio growth rate)
+	\item machine learning (what does learning a distribution mean)
+\end{itemize}
+
 
 \section{Codes}
 
-$S$ - source (domain), $T$ - target (alphabet). A code $\mathcal{C}$ is a function $S \to T^+$.
+$S$ - source (domain), $T$ - target (alphabet). A code $\mathcal{C}$ is a function $S \to T^+$. Abuse of notation: treat $C$ as its image.
 
 \subsection{Uniquely decodable codes}
+
+Code is *uniquely decodable* if for each $c \in T^+$ there is at most one sequence such that $c = s_1...s_n$
 
 \textbf{Theorem}
 
@@ -25,5 +38,35 @@ Code is uniquely decodable if $\mathcal{C}_\infty \cap \mathcal{C} = \emptyset$
 
 \subsection{Instantaneous Codes}
 
+Code is *instantaneous* if 
+
+Code is *prefix* (or prefix-free) if there is no $s, s' \in \mathcal{C}, w \in T^+ sw = s'$ 
+
+\textbf{Theorem}
+
+Code is instantaneous if it is prefix
+
+\textbf{Kraft's theorem}
+
+$L(w)$ is $w$'s length
+
+For given lengths $L(s_i)$ a $r$-ary code ($\mathcal{C}: S \to [r]^+$) prefix code exists iff $\sum_{s_i \in \mathcal{C}} \frac{1}{r^{L(s_i)}} \leq 1$ Where 
+
+\textbf{Note}
+
+This equivalence means that such code *exists*. There exist codes that satisfy the inequality but are not prefix.
+
+\textbf{Algorithm from Kraft's theorem}
+Kraft's theorem proof is constructive: it follows by examining a $r$-ary tree by pruning subtrees. This can be used for constructing a code with given word lengths.
+
+\section{Information measures}
+
+Entropy $H(X) = E[log(p(X)] = \sum_i p(x_i) log(p(x_i))$
+
+Joint entropy $H(X, Y) = E[log(p(X, Y))]$
+
+Conditional entropy
+
+Mutual information $I(X; Y) = E[log\frac{p(X, Y)}{p(X)p(Y)}]$
 
 \end{document}
