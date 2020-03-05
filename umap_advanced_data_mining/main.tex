@@ -1,6 +1,6 @@
 \documentclass[unknownkeysallowed]{beamer}
 \usetheme{Madrid}
-
+\usepackage{subfig}
 \title{Dimensionality reduction with UMAP}
 \subtitle{Advanced Data Mining seminar}
 \author{Jakub Bartczuk}
@@ -13,6 +13,11 @@
 \tableofcontents[section,subsection]
 \end{frame}
 
+\begin{frame}{Teaser}
+\framesubtitle{Reducing dimensionality of COIL20 Dataset}
+\begin{figure}[ht]\centering\begin{minipage}[b]{0.45\linewidth}\includegraphics[width=\textwidth]{coil_tsne.png}\caption{tSNE}\label{fig:minipage1}\end{minipage}\quad\begin{minipage}[b]{0.45\linewidth}\includegraphics[width=\textwidth]{coil_umap.png}\caption{UMAP}\label{fig:minipage2}\end{minipage}\end{figure}
+\end{frame}
+
 \section{Manifold learning recap}
 \begin{frame}{Manifold learning recap}
 
@@ -23,6 +28,8 @@
 \end{itemize}
 \end{frame}
 \begin{frame}{Manifold learning recap}
+
+
 
 \includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{manifold_algorithms}
 
