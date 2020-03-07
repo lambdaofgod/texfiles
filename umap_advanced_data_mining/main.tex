@@ -1,6 +1,8 @@
+
 \documentclass[unknownkeysallowed]{beamer}
 \usetheme{Madrid}
 \usepackage{subfig}
+\usepackage{xcolor}
 \title{Dimensionality reduction with UMAP}
 \subtitle{Advanced Data Mining seminar}
 \author{Jakub Bartczuk}
@@ -107,15 +109,15 @@ Idea: Calculate distance along manifold
 
 Idea: embed into lower-dimensional space, preserve distance statistics
 
-$$q_{j|i} = \frac{f(\|y_i - y_j\|)}{\sum_{k \neq j}f(\|y_i - y_k\|)}, p_{j|i} = \frac{exp(-\|x_i - x_j\|^2 / \sigma^2_i)}{\sum_{k \neq j}exp(-\|x_i - x_k\|^2/\sigma^2_i)}$$
+$$q_{j|i} = \frac{\textcolor{blue}{f}(\|y_i - y_j\|)}{\sum_{k \neq j}\textcolor{blue}{f}(\|y_i - y_k\|)}, p_{j|i} = \frac{exp(-\|x_i - x_j\|^2 / \textcolor{red}{\sigma^2_i})}{\sum_{k \neq j}exp(-\|x_i - x_k\|^2/\textcolor{red}{\sigma^2_i})}$$
 
 $$KL(p, q) = \sum_{i, j} p_{j|i} log\frac{p_{j|i}}{q_{j|i}}$$
 
 \begin{block}{Notes}
-Choice of $f$ determines algorithm:
+Choice of $\textcolor{blue}{f}$ determines algorithm:
 \begin{itemize}
-    \item $f(x) = exp(-x^2)$ - original SNE
-    \item $f(x) = (1 + x^2)^{-1}$ - tSNE (note this is density of Cauchy distribution up to a constant)
+    \item $\textcolor{blue}{f(x) = exp(-x^2)}$ - original SNE
+    \item $\textcolor{blue}{f(x) = (1 + x^2)^{-1}}$ - tSNE (note this is density of Cauchy distribution up to a constant)
 \end{itemize}
 \end{block}
 \end{frame}
@@ -123,7 +125,7 @@ Choice of $f$ determines algorithm:
 \begin{frame}{Stochastic Neighbor Embedding}
 
 \begin{block}{Perplexity}
-$\sigma_i$ gives rise to perplexity $P_i = 2^{H(p_i)}$ which controls effective neighborhood size at $x_i$.
+\textcolor{red}{$\sigma_i$} gives rise to perplexity $P_i = 2^{H(p_i)}$ which controls effective neighborhood size at $x_i$.
 \end{block}
 
 \begin{block}{Algorithm}
