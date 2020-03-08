@@ -74,10 +74,17 @@ The last property basically means that we preserve local and global structure al
 
 \begin{frame}{Distances, graphs and matrix decomposition}
 
-\begin{block}{Why we may not care about preserving exact large distances in embedding space}
+\begin{block}{Local vs global structure}
+We may not care about preserving exact large distances in embedding space as much as small distances
+
+\textcolor{red}{Idea}: Calculate distance along the set 'spanned' by datapoints
 \end{block}
 
-Idea: Calculate distance along manifold
+\begin{block}{Manifold hypothesis}
+The data lies in lower-dimensional, possibly nonlinear space which is embedded in ambient space
+\end{block}
+
+
 
 \end{frame}
 
@@ -142,7 +149,12 @@ Choice of $\textcolor{blue}{f}$ determines algorithm:
 \begin{frame}{Problems with SNE}
 
 \begin{block}{Crowding problem}
-Somewhat fixed by using t Distribution which has longer tails (not so concentrated about maximum)
+In higher dimensions there is 'more room' for intermediate distances.
+
+
+Somewhat fixed by using t Distribution which has longer tails (not so concentrated about maximum).
+
+\textcolor{red}{This problem is not specific to tSNE - it relates to the fact that data may not be sampled uniformly from manifold}
 \end{block}
 
 \begin{block}{Complexity}
