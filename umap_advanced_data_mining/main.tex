@@ -3,6 +3,9 @@
 \usetheme{Madrid}
 \usepackage{subfig}
 \usepackage{xcolor}
+\usepackage{wrapfig}
+\usepackage{braket}
+
 \title{Dimensionality reduction with UMAP}
 \subtitle{Advanced Data Mining seminar}
 \author{Jakub Bartczuk}
@@ -146,20 +149,29 @@ Choice of $\textcolor{blue}{f}$ determines algorithm:
 \end{frame}
 
 
-\begin{frame}{Problems with SNE}
+\begin{frame}{Problems with SNE: Crowding problem}
 
-\begin{block}{Crowding problem}
-In higher dimensions there is 'more room' for intermediate distances.
+\begin{columns}[onlytextwidth]
+\begin{column}[T]{.48\textwidth}
+\begin{itemize}
+	\item 'more room' for intermediate distances in higher dimensions
 
+	\item pairs of points will tend to have similar distance (\textcolor{red}{remember curse of dimensionality for kNN})
+	\item harder to embed them faithfully into lower dimensional space
 
-Somewhat fixed by using t Distribution which has longer tails (not so concentrated about maximum).
+\end{itemize}
+\end{column}
 
-\textcolor{red}{This problem is not specific to tSNE - it relates to the fact that data may not be sampled uniformly from manifold}
-\end{block}
+\begin{column}[T]{.48\textwidth}
+\includegraphics[width=\textwidth]{long_tail.png}
+\end{column}
+\end{columns}
 
-\begin{block}{Complexity}
-?? Trees
-\end{block}
+\begin{itemize}
+\item somewhat fixed by using t Distribution which has longer tails (not so concentrated about maximum).
+
+This problem is not specific to tSNE - it relates to the fact that data may not be sampled uniformly from manifold
+\end{itemize}
 
 \end{frame}
 
@@ -168,12 +180,109 @@ Somewhat fixed by using t Distribution which has longer tails (not so concentrat
 
 \begin{frame}{ELI5 UMAP}
 
+\begin{flushleft}
+Recall UMAP means \textbf{Uniform} Manifold Approximation and Projection
+\end{flushleft}
+
 \end{frame}
 
-\subsection{Topological preliminaries}
+\begin{frame}{UMAP vs tSNE}
+\begin{tabular}{c|c|c}
+& UMAP & tSNE\\
+\hline
+Initialization & Embedding from graph matrix decomposition & Random Gaussian \\
+\hline
+Optimization & SGD + negative sampling & Gradient Descent \\
+\end{tabular}
+\end{frame}
+
+\begin{frame}{UMAP vs tSNE}
+
+{\scalebox{1.4}{
+\begin{tabular}{c|c|c}
+ & UMAP & tSNE \\
+ \hline
+ $p_{i|j}$ & $exp(- \frac{d(x_i, x_j) - \textcolor{green}{\rho_i}}{\textcolor{green}{\sigma_i}})$ & $\frac{exp(-\|x_i - x_j\|^2 / \textcolor{red}{s^2_i})}{\sum_{k \neq j}exp(-\|x_i - x_k\|^2/\textcolor{red}{\sigma^2_i})}$ \\
+ \hline
+ $q_{i|j}$ & $(1 + a\|y_i - y_j\|^{2b}))^{-1}$ & $\frac{(1 + (\|y_i - y_j\|^2))^{-1}}{\sum_{k \neq j}(1 + (\|y_i - y_k\|^2))^{-1}}$ \\
+ \hline
+ {\small Loss} & {\tiny H(q, p) = H(p) + KL(q, p)} & {\tiny KL(q, p)}
+\end{tabular}
+}
+}
+\begin{block}{Where do $\textcolor{green}{\rho_i}, \textcolor{green}{\sigma_i}$ come from?}
+Enter Riemannian structure
+\end{block}
+\end{frame}
+
+
+
+\subsection{Topological and geometrical preliminaries}
+
+\begin{frame}{Riemannian structure}
+
+Remember we want to calculate distance \textbf{along the manifold} 
+
+Curve length on manifold $\to$ distance on manifold
+
+\begin{block}{Curve length in Euclidean space}
+
+$L_\gamma = \int_{0}^{1} \|\gamma'(t)\| dt =  \int_{0}^{1} \sqrt{\braket{\gamma'(t) | \gamma'(t)}} dt$
+
+\end{block}
+
+\textit{Riemannian space} has local inner product
+
+Estimate Riemannian structure with finite samples - set it constant on neighborhoods
+
+Scale neighborhoods so that we have evenly spaced samples
+
+\begin{alertblock}{Problem}
+We get incompatible local structures
+\end{alertblock}
+\end{frame}
+
 
 
 \begin{frame}{Topological preliminaries}
+Topology is the study of structures that are \textit{invariant under continuous transformations}
+
+Here we're interested in spaces that can be expressed from simpler spaces - like polyhedrons
+
+\end{frame}
+
+
+\begin{frame}{Topological preliminaries}
+
+\begin{columns}[T]
+\begin{column}{0.5\linewidth}
+
+\begin{block}{Simplex}
+A $d$-dimensional simplex is a set $S \subset \mathbb{R}^n$ such that there are $d$ linearly independent points $S = conv(d)$ 
+
+\end{block}
+
+\begin{block}{Simplicial complex}
+A set $C$ of simplexes such that if $s, s' \in C \implies s \cap s' \in C$ 
+\end{block}
+\end{column}
+\begin{column}{0.5\linewidth}
+\includegraphics[width=\textwidth,height=0.5\textheight,right]{Simplicial_complex_example.svg.png}
+
+\end{column}
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}{Topology}
+
+\begin{block}{Nerve theorem}
+
+\end{block}
+\end{frame}
+
+\begin{frame}{Global structure from local structures}
 
 \end{frame}
 
@@ -184,6 +293,10 @@ Somewhat fixed by using t Distribution which has longer tails (not so concentrat
 \end{frame}
 
 \section{Practicalities}
+\begin{frame}{Algorithmic considerations}
+
+\end{frame}
+
 \begin{frame}{Python implementations}
 
 	\begin{block}{tSNE and other algorithms}
