@@ -6,6 +6,7 @@
 \usepackage{wrapfig}
 \usepackage{mathtools}
 \usepackage{braket}
+\usepackage{fourier}
 
 \title{Dimensionality reduction with UMAP}
 \subtitle{Advanced Data Mining seminar}
@@ -372,7 +373,7 @@
 
 \begin{frame}{Fuzzy sets}
 
-    \begin{block}{Definitions}
+    \begin{block}<1->{Definitions}
     For fixed set $X$, $S \subset X$, $m: S \to [0, 1]$ (fuzzy membership function)
     \break
     A pair $(S, m)$ is a \textit{fuzzy set} if $0 \leq m(x) \leq 1$
@@ -388,17 +389,42 @@
     $m_{S \cup R}(x) = max(m_S(x), m_R(x))$
     \end{block}
 
-    \begin{exampleblock}{Example}
+    \begin{exampleblock}<2->{Example}
 
     $S_1 = ([0, 1], m)$, $m(x) = [x \in S] x$
 
     \end{exampleblock}
+    
+    \begin{block}<3->{Category of fuzzy sets}
+    	\begin{itemize}
+    		\item objects: fuzzy sets
+    		\item morphisms: functions $f: S \to R$ such that $m_S(x) \leq m_R(f(x))$
+    	\end{itemize}
+    \end{block}
 
 \end{frame}
 
 \subsection{Theoretical foundations}
 \begin{frame}{Extended pseudometric spaces and fuzzy sets}
+\framesubtitle{UMAP paper section 2.2 and appendix B}
+\flushleft{
+	\textit{Fuzzy simplicial sets} are generalization of simplicial complexes. This category is denoted by \textbf{Fin-sFuzz}.
+	\break
+	Category of finite extended pseudometric spaces is denoted by \textbf{FinEPMet}
+	
+}
 
+\begin{block}{Metric realization of fuzzy simplicial sets}
+There exist functors
+\break
+$Real: \textrm{\textbf{Fin-sFuzz}} \to \textrm{\textbf{FinEPMet}}$
+\break
+$Sing: \textrm{\textbf{FinEPMet}} \to \textrm{\textbf{Fin-sFuzz}}$
+\break
+That are \textit{adjoint}.
+\break
+Adjoint pairs of functions estabilish a weak equivalence relation of categories.
+\end{block}
 
 \end{frame}
 
@@ -419,25 +445,28 @@
 
 \begin{frame}{Global structure from local structures}
 
-    \begin{block}{Dataset defines extended pseudometrics}
+    \begin{block}<1->{Dataset defines extended pseudometrics}
 
     $X = \{x_i\}_{i < n}$
+    \break
+    $\rho_i$ - distance from $x_i$ to its closest neighbor
     \break
     $d_i(x_j, x_k) = $
     $
     \begin{cases*}
-        d(x_j, x_k) - \rho_i \textrm{ if } i = j \textrm{ or } i = k \\
-        \infty
+        d(x_j, x_k) - \rho_i \textrm{  if } i = j \textrm{ or } i = k \\
+        \infty \textrm{                 otherwise}
     \end{cases*}
     $
+    
     \end{block}
 
-    \begin{block}{Extended pseudometric spaces $\to$ fuzzy simplicial sets}
-
+    \begin{block}<2->{Extended pseudometric spaces $\to$ fuzzy simplicial sets}
+	$(X, d_i) \mapsto Sing((X, d_i))$
     \end{block}
 
-    \begin{block}{Local fuzzy sets $\to$ global fuzzy set}
-
+    \begin{block}<3->{Local fuzzy sets $\to$ global fuzzy set}
+	$\{(X, d_i)\}_{i < n} \mapsto \bigcup_{i < n} Sing((X, d_i))$ 
     \end{block}
 
 
@@ -449,12 +478,12 @@
 \framesubtitle{UMAP paper section 4.1}
 
 
-    \begin{block}{UMAP(X, d, \textit{min-dist}, \textit{n-epochs})}
+    \begin{block}{UMAP(X, \textit{n-neighbors}, \textit{dim}, \textit{min-dist}, \textit{n-epochs})}
     \begin{itemize}
-        \item \textbf{forall} $x \in X$: $\textrm{ fs}_x =$ LocalFuzzySet($x$, \textit{min-dist})
+        \item \textbf{forall} $x \in X$: $\textrm{ fs}_x =$ LocalFuzzySet($x$, \textit{n-neighbors})
         \item \textit{top-rep} $= \bigcup_{x \in X} \textrm{fs}_x$
-        \item $Y$ := SpectralEmbedding(\textit{top-rep}, $d$)
-        \item $Y$ := OptimizedEmbedding(\textit{top-rep}, $d$, \textit{n-epochs})
+        \item $Y$ := SpectralEmbedding(\textit{top-rep}, \textit{dim})
+        \item $Y$ := OptimizedEmbedding(\textit{top-rep}, \textit{dim}, \textit{min-dist}, \textit{n-epochs})
     \end{itemize}
     \end{block}
 \end{frame}
@@ -465,13 +494,28 @@
     We use only 1-skeleton, weighted neighborhood graph.
     \end{block}
 
-    \begin{block}{Approximation - Section 4.1 Definition 11}
+    \begin{block}{\textcolor{red}{\danger} Approximation \textcolor{red}{\danger}}
     To use gradient descent we need to take a differentiable approximation of fuzzy set membership. 
 
     The authors propose $q_{i|j} = \textcolor{blue}{(1 + a\|y_i - y_j\|^{2b}))^{-1}}$
+    \break
+    \textcolor{red}{Probably the most important difference between tSNE (see tSNE paper 6.2)}
+    \break
+	$a, b$ are set to predefined values or estimated using least squares to approximate
+	\break
+    $\phi(i, j) = 
+    \begin{cases*}
+        1 \textrm{  if } \|y_i - y_j\|_2 \leq \textrm{min-dist} \\
+        exp(-\|y_i - y_j\|_2 + \textrm{min-dist}) \textrm{otherwise}
+    \end{cases*}
+    $
     \end{block}
 
-    \begin{block}{Optimization}
+\end{frame}
+
+\begin{frame}{Optimization}
+\framesubtitle{UMAP paper section 4.2}
+	\begin{block}{Optimization}
     Optimize $C(p, q) = H(p) + KL(p, q)$
 
     For $p, q$ use symmetrized $p_{i,j} = p_{i|j} + p_{j|i} - p_{i|j} p_{j|i}$
@@ -484,23 +528,14 @@
 
     \end{block}
 
-
-\end{frame}
-
-\subsection{Implementation details}
-\begin{frame}{Implementation details}
-\framesubtitle{UMAP paper section 4.2}
-
-    \begin{itemize}
+	\begin{block}{Implementation details - Nearest neighbors}
+	\begin{itemize}
         \item Naive implementation - $O(n^2)$ operations
         \item UMAP implementation uses approximate kNN 	
         \item Nearest Neighbor Descent algorithm is reported to have $O(n^{1.14})$ complexity
     \end{itemize}
-    \begin{flushleft}
-    Naive implementation - $O(n^2)$ operations
-
-    UMAP implementation uses approximate kNN with Nearest Neighbor Descent algorithm which is reported to have $O(n^{1.14})$ complexity
-    \end{flushleft}
+	\end{block}
+    
 
 \end{frame}
 
