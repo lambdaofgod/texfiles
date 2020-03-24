@@ -45,12 +45,18 @@
 \subsection{Multidimensional Scaling}
 \begin{frame}{Classical Multidimensional Scaling}
 
+	\begin{block}{Algorithm: MDS(X, d)}
+	$D_{i,j} = \|x_i - x_j\|^2$
 
-	$$D_{i,j} = \|x_i - x_j\|^2$$
-
-	Find $y$'s, $D'_{i,j} = \|y_i - y_j\|^2$ 
+	Find $y$'s: $y_i \in \mathbb{R}^d$
+	\break
+	$D'_{i,j} = \|y_i - y_j\|^2$ 
 
 	Such that $D' \approx D$
+	
+	Minimize $R = \sum_{i, j}\sqrt{\|x_i - x_j\|^2 - \|y_i - y_j\|^2}$
+	\end{block}
+	
 
 \end{frame}
 
