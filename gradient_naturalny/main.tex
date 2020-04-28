@@ -6,18 +6,24 @@
 \usepackage[utf8]{inputenc}
 \usepackage[polish]{babel}
 \usepackage[T1]{fontenc}
+\usepackage[]{algorithm2e}
 
 \title{Gradient Naturalny}
 \subtitle{}
 \author{Jakub Bartczuk}
 \centering
 \date{Kwiecień 2020}
+\makeatletter
+\renewcommand{\@algocf@capt@plain}{above}% formerly {bottom}
+\makeatother
 \begin{document}
 \maketitle
 
 % macros
 \newcommand{\gradfx}{\nabla f(x)}
-
+\newcommand{\gradloglikelihood}[1]{\nabla_{\theta} log p_{\theta}(#1)}
+\newcommand{\naturalgrad}{\widetilde{\nabla}_{\theta}J}
+\newcommand{\fisher}{\mathbf{F}}
 \begin{frame}{Gradient Descent}
   Minimalizujemy różniczkowalną funkcję $f$.
 
@@ -77,22 +83,66 @@
   \begin{block}{Gradient naturalny}
     $\theta$ parametryzuje rodzinę rozkładów $p_{\theta}$
 
-    $J(\theta) = \mathbb{E}_{x \sim p_{\theta}}[c(x)]$
+    $$J(\theta) = \mathbb{E}_{x \sim p_{\theta}}[c(x)]$$
 
     Minimalizujemy $J(\theta)$ za pomocą $p_{\theta + \delta}$ bliskiego w sensie KL-dywergencji
   \end{block}
-
 \end{frame}
 
 
 \begin{frame}{Gradient Naturalny}
   \begin{block}{GN dokładniej}
-  Szukamy $\delta$ takiego, że $KL(p_{\theta + \delta} || p_{\theta}) < \epsilon$
-  $$argmin_{\delta} J(\theta + \delta) \approx g(\theta) = J(\theta) + \nabla J(\theta)^T \delta $$
+    Szukamy $\delta$
+    $$\underset{\delta: KL(p_{\theta + \delta} || p_{\theta}) < \epsilon}{argmin} J(\theta + \delta)$$ \pause
+    $$J(\theta + \delta) \approx g(\theta) = J(\theta) + \nabla J(\theta)^T \delta $$ \pause
+
+    \end{block}
+    \begin{block}{Mnożniki Lagrange'a - $g$ i przybliżenie Taylora $KL$ dywergencji
+}
+ 
+    $$\mathcal{L}(\theta, \delta, \beta) = J(\theta) + \nabla J(\theta)^T \delta - \beta(\frac{1}{2}\delta^T \fisher \delta + \epsilon) = 0$$
+    $$\nabla_{\delta} \mathcal{L}(\theta, \delta, \beta) = \nabla J(\theta)  - \beta \fisher \delta = 0$$\pause
+    Czyli
+    $$\naturalgrad =_{def} \delta^*  = \fisher^{-1} \nabla J(\theta)$$
+     
+    \end{block}
+    \end{frame}
+
+\begin{frame}{Informacja Fishera}
+      \begin{block}{Przybliżenie KL-dywergencji}
+    $$KL(p_{\theta + \delta} || p_{\theta}) = \mathbb{E}_{x \sim p_{\theta}}[log p_{\theta}(x) - log p_{\theta + \delta}(x)] \approx$$
+    $$\mathbb{E}_{x \sim p_{\theta}}[log p_{\theta}(x) - (log p_{\theta}(x) + \gradloglikelihood{x}^T \delta+ \frac{1}{2} \delta^T \gradloglikelihood{x}\gradloglikelihood{x}^T \delta )] = $$
+    $$\mathbb{E}_{x \sim p_{\theta}}[- \gradloglikelihood{x}^T \delta -\frac{1}{2} \delta^T \gradloglikelihood{x}\gradloglikelihood{x}^T \delta )] =$$ \pause
+    $$ -\frac{1}{2}\delta^T \mathbb{E}_{x \sim p_{\theta}}[ \gradloglikelihood{x}\gradloglikelihood{x}^T  )] \delta = -\frac{1}{2}\delta^T \fisher \delta$$
+
+    $\fisher$ jest nazywana \textbf{Macierzą Informacji Fishera}
   \end{block}
 
-  \end{frame}
+\end{frame}
 
+    
+\begin{frame}{Natural Evolution Strategies}
+% formerly {bottom}
+  \begin{algorithm}[H]
+\caption{Natural Evolution Strategies}
+ \KwData{f, $\theta_{init}$}
+ \While{not converged}{
+   \For{k in [1, .. $\lambda$]}{
+     $z_k = sample(p_{\theta})$\;
+   }
+   $\nabla_{\theta}J = \frac{1}{\lambda} \underset{k < \lambda}{\sum} f(z_k) \gradloglikelihood{z_k}$\;
+   $F = \frac{1}{\lambda} \underset{k < \lambda}{\sum} \gradloglikelihood{z_k}\gradloglikelihood{z_k}^T$\;
+   $\naturalgrad = F^{-1} \nabla_{\theta}J$\;
+   $\theta = \theta - \alpha \naturalgrad $
+ }
+\end{algorithm}  
+\end{frame}
 
+\begin{frame}{Uwagi}
+  \begin{itemize}
+  \item powyższy algorytm stosuje się dla funkcji $f$ pochodzącej od optymalizowanej funkcji \pause
+  \item różne prace teoretyczne pokazują równoważność algorytmu NES z CMA-ES (np \textit{Bidirectional Relation between CMA Evolution Strategies and Natural Evolution Strategies}) 
+  \end{itemize}
 
+\end{frame}
 \end{document}
