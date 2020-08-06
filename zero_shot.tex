@@ -1,0 +1,51 @@
+\documentclass[11pt]{article}
+\usepackage{mathpazo}
+\usepackage{hyperref}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+
+\usepackage[T1]{fontenc}
+
+
+\title{Zero-shot Text Classification}
+\author{Jakub Bartczuk}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+\subsection{Zero-shot Learning definitions}
+
+Traditionally \textbf{Zero-shot Learning} is defined as classification where some classes are not available at train time. This is possible because such tasks have some structure in classes, for example classes have features and can be compared using some metric, like cosine similarity.
+
+In this particular case for text classification we use classes that are themselves text, so Zero-shot learning is possible because language models can extract features from both input and classes. 
+
+\subsection{Natural Language Inference}
+
+NLI is a task where $(premise, hypothesis)$ sentence pairs are labeled as being either contradictory, neutral or implication ($premise$ entails $hypothesis$).
+
+\href{https://arxiv.org/abs/1908.10084}{\textit{SentenceBERT}} is one model used for NLI. It uses architecture that pools sentence representation, a tensor that depends on sentence length to fixed-length representation, and then compares the representations of $premise$ and $hypothesis$. 
+
+\textit{SentenceBERT} is useful for zero-shot learning since it's implicitly trained to obtain the best fixed-length representation for NLI, which can be then used for semantic similarity.
+
+\section{Technical details}
+
+There are several approaches for turning NLI models into zero-shot classifiers.
+
+\subsection{Hypotheses from classes}
+For a given classification type we can turn classes into sentences about them, for example for topic classification for a topic "politics" we get pairs
+
+$(premise, hypothesis) = (text, \textrm{"text\ is\ about\ politics"})$
+
+
+\subsection{Aligning word embeddings}
+
+\subsection{Pattern Exploiting Training}
+
+\section{Implementations}
+ktrain
+
+huggingface transformers
+
+\end{document}
