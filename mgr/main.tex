@@ -37,28 +37,8 @@
 \newcommand{\G}{\mathcal{G}}
 
 
-\newcommand{\nedge}{k}
 \newcommand{\mb}{\mathbf}
-\newcommand{\cut}[1]{}
-%\newcommand{\xhdr}[1]{\vspace{1.7mm}\noindent{{\bf #1}}}
-\newcommand{\casc}{{\mathbf{t}}}
-\newcommand{\alphs}{{\mathbf{A}}}
-\newtheorem{proposition}{Proposition}
-\newtheorem{theorem}{Theorem}
-\newtheorem{corollary}[theorem]{Corollary}
-\newtheorem{lemma}{Lemma}
-\newcommand{\xsketch}{\noindent {\it Proof Sketch.}}
-\newcommand{\netinf}{{\textsc{Net\-Inf}}\xspace}
-\newcommand{\multitree}{{\textsc{Multi\-Tree}}\xspace}
-\newcommand{\netrate}{{\textsc{Net\-Rate}}\xspace}
-\newcommand{\connie}{{\textsc{Co\-nNIe}}\xspace}
-\newcommand{\maxinf}{{\textsc{Max\-Inf}}\xspace}
-\newcommand{\expo}{{\textsc{Exp}}\xspace}
-\newcommand{\pow}{{\textsc{Pow}}\xspace}
-\newcommand{\ray}{{\textsc{Ray}}\xspace}
-\newcommand{\eg}{\emph{e.g.}}
-\newcommand{\ie}{\emph{i.e.}}
-\newcommand{\unobs}{{\infty}}
+
 \newcommand\T{\rule{0pt}{2.6ex}}
 \newcommand\B{\rule[-1.2ex]{0pt}{0pt}}
 
@@ -144,6 +124,33 @@ Nonetheless, searching using topics has two problems:
 \begin{itemize}
 \item because they are optional, many projects have few or none topics specified
 \item topic names are not standardized, so repositories for synonymous topics are not trivial to find
+\end{itemize}
+
+We propose to tackle this information retrieval problem using progressively
+relaxed  
+assumptions: 
+
+\begin{enumerate}
+\item repository \label{papers:abstracts} is described by paper abstract
+\item repository \label{papers:readme} has a README file
+\item repository \label{papers:code} has none of the above - only code is available 
+\end{enumerate}
+
+Each step of this hierarchy corresponds to growing usefulness of the system. In
+general we cannot assume that a repository will easily match any paper, and
+dropping README requirement might be helpful as it might make useful code
+accessible even before authors decide to summarize their work.
+
+Whereas coming from step \ref{papers:abstracts} and \ref{papers:readme} is
+straightforward, dropping single document representation of a repository poses a
+hard problem:
+
+\begin{itemize}
+\item methods need to change, because repository contains multiple code files
+  and there is no single natural way to represent a set of files.
+\item even though there exist models that potentially can use both code  and
+  natural language as input, using pretrained models without finetuning results
+  in poor performance \ref{failed_experiments} 
 \end{itemize}
 
 \section{Papers with Code}
@@ -912,22 +919,53 @@ As a proxy for retrieval by natural language queries we  evaluate retrieval of a
 \end{table}
 
 \newpage 
-We propose to tackle this information retrieval problem using progressively
-relaxed  
-assumptions: 
-
-\begin{itemize}
-\item repository is described by paper abstract
-\item repository has a README file
-\item repository has none of the above 
-\end{itemize}
-
-Each step of this hierarchy corresponds growing usefulness of the system. In
-general we cannot assume that a repository will easily match any paper, and
-dropping README requirement might be helpful as it might make useful code
-accessible even before authors decide to summarize their work. 
 
 \section{General ideas}
+\subsection{Classical information retrieval}
+
+\subsection{Feature extraction for documents and queries using NLP models}
+
+We experimented with information retrieval using the same model for queries and
+documents. These models can be trained to achieve reasonable effectiveness
+for abstracts/READMEs, for example learning pooled embeddings from transformer
+models \cite{sentence_transformers}.
+
+These approaches fail to scale to whole repositories in a straightforward
+fashion. Bi- and cross-encoders were trained for similarity search using (task, representation) pairs for
+using representations of functions from a given repository. 
+
+Experiment results show
+that both using sentence-transformers on raw function code and summaries from
+sequence2sequence models perform
+poorly for retrieval using tasks:
+
+\begin{itemize}
+\item functions have lower abstraction level than paperswithcode tasks. The same
+  exact function for image processing might be used either in image
+  classification or image captioning repository.
+\item straightforward aggregation of task-function scores with max/mean fails to
+  take into account the fact the degree function importances with respect to task. 
+\end{itemize}
+
+Below we show distribution of task-representation scores produced by
+cross-encoder model, where representation is either function's Python code or
+its summary using T5 model finetuned on code.
+
+TODO: show results and describe why they look like essentially random
+
+\subsection{Seq2Seq models}
+
+\subsubsection{Summarization}
+
+We experimented with summarization models to predict tasks given Python file.
+
+TODO: semantic IDs
+
+Because code dataset is naturally hierarchicaly structured, we try to use file paths analogously to semantic document IDs from \cite{differentiable_search_index}.
+\textbf{pegasus <REPO SEP> pegasus/models/transformer.py 
+}
+
+
 
 \subsection{Feature extraction and zero-shot learning}
 \subsubsection{TODO schematic}
@@ -993,34 +1031,6 @@ Using \(F(t, r)\) learned with ZSL methods we score task-repository similarities
 Using sentence transformers we can finetune models that are trained for various tasks like comment generation or summarization to extract features for whole texts.
 
 \paragraph{Used datasets}
-
-\subsection{Sequence-to-sequence models}
-
-Language models pretrained on various code tasks can be used to extract shorter versions (like summaries) that can be used for
-\begin{itemize}
-    \item query expansion
-    \item document representations for better sentence embeddings
-\end{itemize}
-
-
-\paragraph{README summarization}
-
-\paragraph{Code summarization}
-
-\subsubsection{Information retrieval as sequence-to-sequence task}
-
-We adapt approach from Differentiable Search Index \cite{differentiable_search_index} paper for information retrieval using sequence2sequence models.
-
-TODO: low compute
-
-Because code dataset is naturally hierarchicaly structured, we try to use file paths analogously to semantic document IDs from \cite{differentiable_search_index}.
-
-\textbf{pegasus <REPO SEP> pegasus/models/transformer.py 
-}
-
-TODO: better example 
-
-TODO: special tokens
 
 \section{Representation}
 
