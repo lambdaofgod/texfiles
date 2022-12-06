@@ -37,28 +37,8 @@
 \newcommand{\G}{\mathcal{G}}
 
 
-\newcommand{\nedge}{k}
 \newcommand{\mb}{\mathbf}
-\newcommand{\cut}[1]{}
-%\newcommand{\xhdr}[1]{\vspace{1.7mm}\noindent{{\bf #1}}}
-\newcommand{\casc}{{\mathbf{t}}}
-\newcommand{\alphs}{{\mathbf{A}}}
-\newtheorem{proposition}{Proposition}
-\newtheorem{theorem}{Theorem}
-\newtheorem{corollary}[theorem]{Corollary}
-\newtheorem{lemma}{Lemma}
-\newcommand{\xsketch}{\noindent {\it Proof Sketch.}}
-\newcommand{\netinf}{{\textsc{Net\-Inf}}\xspace}
-\newcommand{\multitree}{{\textsc{Multi\-Tree}}\xspace}
-\newcommand{\netrate}{{\textsc{Net\-Rate}}\xspace}
-\newcommand{\connie}{{\textsc{Co\-nNIe}}\xspace}
-\newcommand{\maxinf}{{\textsc{Max\-Inf}}\xspace}
-\newcommand{\expo}{{\textsc{Exp}}\xspace}
-\newcommand{\pow}{{\textsc{Pow}}\xspace}
-\newcommand{\ray}{{\textsc{Ray}}\xspace}
-\newcommand{\eg}{\emph{e.g.}}
-\newcommand{\ie}{\emph{i.e.}}
-\newcommand{\unobs}{{\infty}}
+
 \newcommand\T{\rule{0pt}{2.6ex}}
 \newcommand\B{\rule[-1.2ex]{0pt}{0pt}}
 
@@ -89,7 +69,6 @@
 
 
 \section{Introduction}
-
 
 As of 2021, we observe several years of increased adoption of neural network methods in NLP. There is evidence that language models trained on massive datasets
 capture various aspects of these datasets. As an evidence for that task one can
@@ -134,7 +113,7 @@ In this problem, we know that these methods might underperform on curved text. B
 "Curved text detection" which the developer might guess as a search query is a phrase that actually occurs in some research papers. In many real world problems we will not have this luxury.
 
 \section{Searching on github}
-
+\label{intro_searching_github}
 
 Github (as of 2021) provides a search interface that can be used to search repository names, its README files, and topics.
 This functionality is good when we have a good idea for a query, but it suffers from usual problems of bag-of-words model of information retrieval.
@@ -146,6 +125,32 @@ Nonetheless, searching using topics has two problems:
 \item topic names are not standardized, so repositories for synonymous topics are not trivial to find
 \end{itemize}
 
+We propose to tackle this information retrieval problem by progressively relaxing  assumptions: 
+
+\begin{enumerate}
+\item repository \label{papers:abstracts} is described by paper abstract
+\item repository \label{papers:readme} has a README file
+\item repository \label{papers:code} has none of the above - only code is available 
+\end{enumerate}
+
+Each step of this hierarchy corresponds to growing usefulness of the system. In
+general we cannot assume that a repository will easily match any paper, and
+dropping README requirement might be helpful as it might make useful code
+accessible even before authors decide to summarize their work.
+
+Whereas coming from step \ref{papers:abstracts} and \ref{papers:readme} is
+straightforward, dropping single document representation of a repository poses a
+hard problem:
+
+\begin{itemize}
+\item standard information retrieval tools using bag-of-words model fail (because of vocabulary mismatch)
+\item embedding-based methods need to be adapted, because repository contains multiple code files
+  and aggregating embeddings is problematic
+\item even though there exist models that potentially can use both code  and
+  natural language as input, using pretrained models without finetuning results
+  in poor performance \ref{failed_experiments} 
+\end{itemize}
+
 \section{Papers with Code}
 
 Papers with Code is a service for machine learning researchers and practicioners that aims at bringing order to research publications. It extracts paper metadata so that papers for similar tasks may be grouped together, and compared if they provide results for the same problem. For our topic the most important are github implementation links and Papers with Code tasks.
@@ -154,8 +159,10 @@ The tasks are short descriptions of problems like Language Modeling or Semantic 
 
 In total there are 1625 \textbf{tasks}. PapersWithCode groups them into areas:
 
-\begin{center}
-\begin{tabular}{|l|r|}
+\begin{table}[htbp]
+\centering
+  \caption{PapersWithCode area task counts}
+  \begin{tabular}{|l|r|}
 \hline
 area & number of tasks\\
 \hline
@@ -178,8 +185,8 @@ time-series & 49\\
 \hline
 total tasks & 1625\\
 \hline
-\end{tabular}
-\end{center}
+  \end{tabular}
+  \end{table}
 
 For example area computer-code contains following tasks:
 
@@ -207,7 +214,6 @@ highlighted in red}
                    api-sequence-recommendation \\
  formalize-foundations-of-universal-algebra-in \\
                          wrong-binary-operator \\
-                          {\color{red} low-rank-compression}\\
                                variable-misuse \\
                              program-induction \\
                                    code-search \\
@@ -243,7 +249,7 @@ Programming is like standing on the shoulders of the giants - developers mostly 
 Because of this, significant time is spent on finding useful code, either in form of snippets or whole libraries.
 
 In their review paper Chao Liu et al \cite{code_search} propose several groups of issues \footnote{section \ref{codesearch} goes into more detail} faced by code search research . Our problem mostly tries to tackle challenges 3 (model fusion) and  and 5 (search tasks) because it is a novel search task. 
-Because it is so novel we cannot use existing models trained on other tasks, so this work also tries to fuse different models or aggregate representations from different models.
+Because of novelty we cannot use existing models trained on other tasks, so this work also tries to fuse different models or aggregate representations from different models.
 
 \section{Contributions}
 
@@ -598,7 +604,7 @@ and creating fixed size contexts from their neighbors.
 Formally, for each minibatch \(B\), \(K\) -layer GraphSAGE fetches embeddings of nodes sampled from \(K\) -hop neighborhoods of each \(u \in B\).
 
 This is achieved by the following algorithm:
-\begin{algorithm}[htbp]
+\begin{algorithm}[h]
 \caption{name\ embedding generation (i.e., forward propagation) algorithm}
 \label{alg:basic}
 	\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
@@ -639,7 +645,7 @@ Papers submitted to MSR typically focus on several tasks:
 
 Another research track relevant to our work is using neural networks for feature extraction from code. These features are then used for code classification, generation or search.
 
-\section{Programming languages as machine learning data}
+\section{Machine learning and computer code}
 
 \subsubsection{Code Search}
 Code search which is one of the most significant programming activities is not well researched topic. Chao Liu et al \cite{code_search} review papers that try to tackle this problem, and they identify several issues that might explain this relative obscurity. The authors hypothesize that due to lack of standardization and big, clean datasets it is hard to talk about progress in this area. They identify several issues with code search that are typically solved by the papers:
@@ -658,7 +664,9 @@ Code search which is one of the most significant programming activities is not w
 
 Code search tasks may be split into categories according to scale of expected results
 
-\begin{center}
+\begin{table}
+  \caption{taxonomy of code search tasks}
+  \centering
 \begin{tabular}{|p{2cm}|p{4cm}|p{3cm}|p{4cm}|}
 \hline
 type & microscopic  & mesoscopic & macroscopic\\
@@ -668,7 +676,7 @@ expected results & code snippet or method & file or bigger code fragment & whole
 example tasks & text-based code snippet search \newline IO based search & clone detection \newline  UI search \newline API search  & find library or project (our problem) \\
 \hline
 \end{tabular}
-\end{center}
+\end{table}
 
 \subsection{Performance metrics}
 
@@ -706,6 +714,7 @@ Whereas most work focuses on extracting features for code snippets or functions,
 In the following we list topics related to our problem and summarize important papers.
 The two approaches most relevant for our work are Language Models for code search and Import2Vec.
 
+{\color{red}
 \section{Hierarchical structure}
 
 Because repository code consists of files, which in turn consist of classes and methods defined in them, a natural question is:
@@ -748,36 +757,59 @@ Comparing these methods is challenging, especially for larger networks, as some 
 \textbf{\textbf{RQ: are embeddings into hyperbolic spaces feasible for big graphs?}}
 \end{enumerate}
 \end{enumerate}
+}
 
+\chapter{Problem statement}
 
-\chapter{Data}
+\begin{table}[hbt!]
+\caption{Gold standard results for 'anomaly detection' task}
+\begin{tabular}{|p{6cm}|c|}
+\hline                                                                                                                paper title &                                repository name\\ \hline
+\midrule
+                                                                PyOD: A Python Toolbox for Scalable Outlier Detection &                      winstonll/SynC \\ \hline
+ Anomalous Sound Detection as a Simple Binary Classification Problem with Careful Selection of Proxy Outlier Examples &    OptimusPrimus/dcase2020\_workshop \\ \hline
+                                                               Learning Generalized Spoof Cues for Face Anti-spoofing &     Podidiving/lgsc-for-fas-pytorch \\ \hline
+                                                                Combining Machine Learning Models using combo Library &                      yzhao062/combo \\ \hline
+                                        Detecting Regions of Maximal Divergence for Spatio-Temporal Anomaly Detection &                    cvjena/libmaxdiv \\ \hline
+\end{tabular}
+\end{table}
 
+\section{Metrics}
 
-\section{Dataset}
-\subsection{Sources}
-
-
+We envision two search scenarios:
 
 \begin{enumerate}
-
-\item Project README
-
-\item Python function call graph
-
+\item Looking for a single or a few relevant projects from a given domain: user is interested to retrieve at least one relevant project. Thus accuracy@$k$ is appropriate metric.
+\item Browsing projects: user will be interested in having as many relevant projects as high as possible in result list. This can be captured using MAP (mean average precision).
 \end{enumerate}
 
 
-\subsection{Train-test split}
-
-Test queries were selected as 20\% from each PapersWithCode area.
 
 
 
-\section{Data Sources}
+\section{Repository task retrieval}
 
-\subsection{Raw Data}
+As a proxy for retrieval by natural language queries we  evaluate retrieval of arXiv paper's Python repository given its PapersWithCode \textbf{task}.
 
-\subsubsection{Papers}
+\chapter{Data}
+
+We use two main ways to extract data for machine learning models:
+
+\begin{enumerate}
+
+\item paper's abstracts extracted from PapersWithCode data (used only in topline)
+
+\item Project READMEs extracted from repositories - a realistic search scenario
+
+\item Python function call graph extracted from codebase, based on Python Abstract Syntax Trees. 
+
+\end{enumerate}
+
+We performed \textbf{train-test split} selecting test queries as 20\% tasks from each PapersWithCode area.
+
+\section{Raw Data}
+
+\subsection{Papers}
 
 We use publicly available Papers with Code dataset \footnote{1 \url{https://github.com/paperswithcode/paperswithcode-data}}
 
@@ -789,77 +821,58 @@ Using this data we can extract paper tasks. Tasks were filtered to remove rare o
 
 There are TODO \textbf{tasks} that are used for queries. PapersWithCode groups them into areas:
 
-\begin{center}
-
-\begin{tabular}{lr}
-\toprule
-area & number of tasks  \\
-\midrule
-\hline
-computer-vision             &   107 \\
-miscellaneous               &   104 \\
-natural-language-processing &    77 \\
-methodology                 &    64 \\
-graphs                      &    15 \\
-medical                     &    14 \\
-speech                      &    13 \\
-time-series                 &    10 \\
-playing-games               &     9 \\
-robots                      &     8 \\
-audio                       &     6 \\
-knowledge-base              &     5 \\
-music                       &     5 \\
-reasoning                   &     3 \\
-computer-code               &     3 \\
-adversarial                 &     3 \\
-\bottomrule
-\end{tabular}
-
-\end{center}
-
-\subsection{Text corpora}
-
-
-
-\begin{itemize}
-
-\item paper abstracts (only used in topline)
-
-\item Python code
-
-\item README files
-
-\end{itemize}
-
-
+\begin{table}[htbp]
+  \centering
+  \caption{PapersWithCode area task counts}
+  \begin{tabular}{|l|r|}
+    \hline
+    area & number of tasks\\
+    \hline
+    adversarial & 9\\
+    audio & 28\\
+    computer-code & 37\\
+    computer-vision & 500\\
+    graphs & 49\\
+    knowledge-base & 22\\
+    medical & 181\\
+    methodology & 138\\
+    miscellaneous & 125\\
+    music & 16\\
+    natural-language-processing & 341\\
+    playing-games & 38\\
+    reasoning & 15\\
+    robots & 26\\
+    speech & 51\\
+    time-series & 49\\
+    \hline
+    total tasks & 1625\\
+    \hline
+  \end{tabular}
+\end{table}
 
 \section{Extracted datasets}
 
-
-
-
+Inspired by Import2Vec we dig deeper into Python code.
 
 \subsection{Python functions}
 
 
-
 \begin{center}
-\begin{figure}[htbp]
+\begin{figure}[h]
 \centering
-\includegraphics[width=1.25\linewidth]{./img/graph_diagram.jpg}
+\includegraphics[scale=0.5]{./img/graph_plot.png}
 \caption{example subgraph}
 \end{figure}
 \end{center}
 
 
-Using `ast` Python files were parsed and then used to extract class and function definitions.
+Using ast \footnote{https://docs.python.org/3/library/ast.html} Python files were parsed and then used to extract class and function definitions.
 
 
-
-\subsection{Python Dependency graph}
+\section{Python Dependency graph}
 \label{python-graph}
 
-
+\subsection{Vertices}
 
 We define a directed graph  \((V, E)\) where 
 
@@ -889,48 +902,175 @@ Vertices from \(V\) form dependency hierarchy, where next level contains element
 
 This gives a natural definition of (directed) edges:
 
-\((v, w) \in E\) if \(w\) is defined/contained in \(v\), where \(v\) is from one level higher (root-repo, repo-file, file-function, function-called function)
 
-\chapter{Approach}
+\subsection{Edges}
+
+We propose two variants which are useful for graph embedding and node embedding methods respectively.
+
+\textbf{Per-repository graph}
+
+$G = (V, E)$ where variant nodes in $V_{file}$, $V_{df}$, $V_{cf}$ are labeled with repositories that contain them.
+
+\((v, w) \in E\) if \(w\) is defined/contained in \(v\), where \(v\) is from one level higher (root-repo, repo-file, file-function, function-called function).
+
+This results in single connected component per repository.
+
+\textbf{Sharing nodes between repositories}
+
+Nodes are shared between repositories.
+
+Note this graph can be also described as quotient of graph $G$ by equivalence relation where $v ~ v'$ if they have the same name.
+
+\chapter{Proposed approach}
 
 \section{Introduction}
 
-As a proxy for retrieval by natural language queries we  evaluate retrieval of arXiv paper's Python repository given its PapersWithCode \textbf{task}.
+In this chapter we outline potential approaches, their drawbacks and how they
+relate to our proposed solutions.
+
+The classical approach to treat a repository as a set of documents is described in
+\ref{classical_ir}. Here we explain why it performs poorly, namely
+
+\textbf{Issue 1:} vocabulary mismatch between repositories and tasks
+
+A natural way to tackle this problem is to use word embeddings. In fact we make
+
+\textbf{Observation 1:} matching tasks with repository paper's abstract is a strong topline 
+
+Knowing repository's paper at test time is an unreasonable assumption, so we
+need to search for another baseline. In fact
+
+\textbf{Result 1:} matching repository READMEs forms a reasonable baseline
+
+Going beyond README assumption however requires a major leap. 
+
+\textbf{Issue 2:} there is no natural way to extract repository features 
+
+In \ref{approach_feature_extraction} we explore feature extraction and
+some potential approaches that worked poorly. We start with word
+embeddings, which in turn face the following
+
+\textbf{Issue 3:} methods using repository file embeddings require aggregation
+
+We propose to approach this using graph neural networks.
+
+\textbf{Observation 2:} graph neural networks are a way to solve aggregation problem
+
+We illustrate aggregation methods first using supervised learning in \ref{supervised_learning}, because PapersWithCode
+repositories can be treated as multilabel classification dataset, and supervised
+learning is a well-known domain.
+
+Starting from \ref{general_ideas} we describe our approach that tackles all
+the following issues using zero-shot learning.
+
+\textbf{Conclusion 1:} file-based approaches do not reach README approach performance
+
+\textbf{Conclusion 2:} it is possible to boost README baseline
+
+\section{Classical information retrieval}
+\label{classical_ir}
+We evaluated BM25, a commonly used information retrieval method. It is easy to
+explain why it performs poorly - it requires exact matching of query keywords,
+and in our dataset it happens rarely because high-level concepts like the
+problems it tries to solve are typically not mentioned in implementation.
+
+\section{Feature extraction}
+\label{approach_feature_extraction}
+
+\subsection{Different query and repository features}
+
+\textbf{Query features}
 
 
-\begin{table}[hbt!]
-\caption{Gold standard results for 'anomaly detection' task}
-\begin{tabular}{|p{6cm}|c|}
-\hline                                                                                                                paper title &                                repository name\\ \hline
-\midrule
-                                                                PyOD: A Python Toolbox for Scalable Outlier Detection &                      winstonll/SynC \\ \hline
- Anomalous Sound Detection as a Simple Binary Classification Problem with Careful Selection of Proxy Outlier Examples &    OptimusPrimus/dcase2020\_workshop \\ \hline
-                                                               Learning Generalized Spoof Cues for Face Anti-spoofing &     Podidiving/lgsc-for-fas-pytorch \\ \hline
-                                                                Combining Machine Learning Models using combo Library &                      yzhao062/combo \\ \hline
-                                        Detecting Regions of Maximal Divergence for Spatio-Temporal Anomaly Detection &                    cvjena/libmaxdiv \\ \hline
-\end{tabular}
-\end{table}
-
-\newpage 
-We propose to tackle this information retrieval problem using progressively
-relaxed  
-assumptions: 
-
+We evaluate several methods for extracting representations from PapersWithCode task names:
 \begin{itemize}
-\item repository is described by paper abstract
-\item repository has a README file
-\item repository has none of the above 
+\item pretrained word embeddings available in Gensim \cite{rehurek2011gensim}
+\item word embeddings (FastText and Word2Vec) trained on Python file corpus
+\item sentence-transformers based embeddings \cite{sentence_transformers}
 \end{itemize}
 
-Each step of this hierarchy corresponds growing usefulness of the system. In
-general we cannot assume that a repository will easily match any paper, and
-dropping README requirement might be helpful as it might make useful code
-accessible even before authors decide to summarize their work. 
+\textbf{Repository features}
+
+Due to explosion of interest in transformer-based models in NLP there exist several methods enabling search beyond bag-of-words model.
+
+This kind of functionality is very useful for cases where given specific query we want to find text fragment related to query, like in question answering models
+
+Unfortunately this cannot be used as-is for repository search, because repositories contain multitude of such fragments.
+
+This means that for repository search we would need to find method  for extracting features from parts into more global features.
+
+We use several methods to extract repository features
+\begin{itemize}
+    \item text features extracted from README. These use either FastText or Word2Vec.
+    \item Import2Vec features
+    \item graph Node Embedding features (these methods are inductive, so the main point of using them is to compare their results to GNN features)
+    \item Graph Neural Networks which in turn use node name features extracted with 
+      \begin{itemize}
+        \item Word2Vec
+        \item FastText
+        \item {\color{red} embeddings extracted from ULMFiT recurrent neural network \cite{ulmfit}}
+      \end{itemize}
+\end{itemize}
+
+\section{Supervised learning}
+
+Because we can treat tasks as labels, we tried supervised learning
+algorithms as a sanity check for our methods. If the supervised neural network
+based models performed
+well, it would be then possible to extract representations for queries or
+repositories and use them for information retrieval.
+
+Unfortunately using graph neural networks with classification module
+on top performed very poorly.
+
+We evaluated two supervised tasks:
+
+\begin{enumerate}
+\item area classification
+\item multilabel task classification
+\end{enumerate}
+
+This evaluation was done only on training set to illustrate that out of the box
+graph neural networks perform poorly at this task. For details see \ref{supervised_learning}.
 
 \section{General ideas}
 
-\subsection{Feature extraction and zero-shot learning}
-\subsubsection{TODO schematic}
+We will separately treat two ways of matching features for information retrieval
+- one that embeds queries and corpus in the same space, and approach that uses
+different encoders to extract embeddings and then does matching afterward.
+
+The second approach enables us to use data from different modalities - queries
+are text data, but the repositories can be represented in different way, in our
+case using graphs.
+
+\label{general_ideas}
+
+\subsection{Shared query and code encoder}
+In first experiments beyond bag-of-words model in information retrieval we used the same model for queries and
+documents. Models for pairwise similarity task trained in such way achieve reasonable effectiveness
+for abstracts/READMEs. We will call this approach ``shared encoder''.
+
+These approaches also fail to scale to whole repositories in a straightforward
+fashion. Bi- and cross-encoders  were trained for similarity search using (task, representation) pairs for
+using representations of functions or files from a given repository. 
+
+Experiment results show that both state-of-the-art cross encoder method on raw function
+code and summaries from sequence2sequence models perform poorly for retrieval
+using tasks.
+
+We propose the following explanations:
+
+\begin{itemize}
+\item functions have lower abstraction level than paperswithcode tasks. The same
+  exact function for image processing might be used either in image
+  classification or image captioning repository.
+\item straightforward aggregation of task-function scores with max/mean fails to
+  take into account the fact the degree function importances with respect to task. 
+\end{itemize}
+
+In the appendix \ref{shared_encoder} we show the detailed results.
+
+\subsection{Using different features for tasks and repositories}
 
 Our system can be decomposed into two separate parts:
 
@@ -942,145 +1082,35 @@ Our system can be decomposed into two separate parts:
 
 \end{enumerate}
 
-\subsubsection{Matching queries with repositories}
+\textbf{Matching queries with repositories}
 
-We use Zero-shot learning (ZSL) methods because there is a need to match representations from different domains,
+We propose to use Zero-shot learning (ZSL) methods because potentially there is a need to match representations from different domains,
 
-for example FastText vectors for query and graph-based representation of repository.
+for example FastText embeddings for query and graph-based embeddings of repository.
+-\footnote{in fact, some ZSL methods use ranking objective, like \cite{label_embedding}}. 
 
 Existing Zero-shot learning methods typically model similarity between entities that use different representations.
 
-This naturally fits our problem as most information retrieval models use query-document similarities to find most relevant documents.
-
-\subsubsection{Query features}
-
-Because ZSL needs class features, we evaluate several methods for extracting representations from PapersWithCode task names:
-\begin{itemize}
-\item pretrained word embeddings available in Gensim \cite{rehurek2011gensim}
-\item word embeddings (FastText and Word2Vec) trained on Python file corpus
-\end{itemize}
-
-\subsubsection{Repository features}
-
-    Due to explosion of interest in transformer-based models in NLP there exist several methods enabling search beyond bag-of-words model.
-
-    This kind of functionality is very useful for cases where given specific query we want to find text fragment related to query, like in question answering models
-
-Unfortunately this cannot be used as-is for repository search, because repositories contain multitude of such fragments.
-
-This means that for repository search we would need to find method  for extracting features from parts into more global features.
-
-We use several methods to extract repository features
-\begin{itemize}
-    \item text features extracted from README. These use either FastText or Word2Vec.
-    \item Import2Vec features
-    \item graph Node Embedding features (these methods are inductive, so the main point of using them is to compare their results to GNN features)
-    \item GNN features extracted using GraphSAGE
-\end{itemize}
-
+This naturally fits our problem as most information retrieval models use
+query-document similarities to find most relevant documents.
 
 \subsection{Proxy ZSL problem}
 
 
-Zero-shot learning algorithms are used for matching task \(\phi(t)\) features with repository \(\psi(r)\) features. Using these features ZSL model comes up with a scoring function $F(t, r)$ that measures how well repository $r$ matches task $t$.
+Zero-shot learning algorithms are used for matching task \(\phi(t)\) features
+with repository \(\psi(r)\) features. Using these features ZSL model comes up
+with a scoring function $F(t, r)$ that measures how well repository $r$ matches
+task $t$. Using \(F(t, r)\) learned with ZSL methods we score task-repository similarities and for a given repository retrieve top \(k\) matched tasks.
 
-For simplicity we only use single-label Zero-Shot learning methods. For this we needed to extract single task that best describes the repository. One way to do this is to select \textbf{least common task}.
+\subsection{Combining approaches}
 
-Using \(F(t, r)\) learned with ZSL methods we score task-repository similarities and for a given repository retrieve top \(k\) matched tasks.
+With zero-shot learning approach different features can be handled in a natural
+way. In our work we combine readme features with graph features.
 
-\subsection{Sentence embeddings}
+This approach is not without its issues though. {\color{red} The model had to be
+chosen carefully, because its number of parameters is $O(dim(\psi(r)) \cdot dim(\phi(t))$}
 
-Using sentence transformers we can finetune models that are trained for various tasks like comment generation or summarization to extract features for whole texts.
-
-\paragraph{Used datasets}
-
-\subsection{Sequence-to-sequence models}
-
-Language models pretrained on various code tasks can be used to extract shorter versions (like summaries) that can be used for
-\begin{itemize}
-    \item query expansion
-    \item document representations for better sentence embeddings
-\end{itemize}
-
-
-\paragraph{README summarization}
-
-\paragraph{Code summarization}
-
-\subsubsection{Information retrieval as sequence-to-sequence task}
-
-We adapt approach from Differentiable Search Index \cite{differentiable_search_index} paper for information retrieval using sequence2sequence models.
-
-TODO: low compute
-
-Because code dataset is naturally hierarchicaly structured, we try to use file paths analogously to semantic document IDs from \cite{differentiable_search_index}.
-
-\textbf{pegasus <REPO SEP> pegasus/models/transformer.py 
-}
-
-TODO: better example 
-
-TODO: special tokens
-
-\section{Representation}
-
-\begin{enumerate}
-
-\item Text data:
-
-\begin{enumerate}
-
-\item Word2Vec
-
-\item FastText
-
-\item Transformer-based features
-
-\item Import2Vec
-
-\end{enumerate}
-
-
-
-\item Dependency graph:
-
-\begin{enumerate}
-
-\item Node embeddings
-
-\item GraphSAGE
-
-\end{enumerate}
-
-
-
-Graph-based features are extracted for nodes in dependency graph, so for each repository we need to aggregate them from its constituents.
-
-To do this we fetch file name node embeddings, and their average is taken to represent a project.
-
-For transductive models like GraphSAGE we initialize node embeddings with text features (extracted from file names, functions et c).
-
-These representations use either FastText trained on Python code corpus or embeddings CodeBERT model.
-
-\end{enumerate}
-
-
-
-
-\chapter{Evaluation}
-\section{Metrics}
-
-We envision two search scenarios:
-
-\begin{enumerate}
-    \item Looking for a single or a few relevant projects from a given domain
-    \item Browsing projects.
-\end{enumerate}
-
-In 1st scenario user is interested to retrieve at least one relevant project. Thus accuracy @ k is appropriate metric.
-
-The 2nd case developer will be interested in having as many relevant projects as high as possible in result list. This can be captured using MAP (mean average precision).
-
+\chapter{Results}
 
 \section{Topline}
 
@@ -1088,12 +1118,16 @@ The 2nd case developer will be interested in having as many relevant projects as
 Topline was established by matching queries (tasks) with paper abstracts.
 
 \section{Results}
-  
- \begin{center}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Evaluation results on test set. Topline in italics, best result in bold.}
  \begin{tabular}{ |p{3cm}|p{2cm}|p{2cm}|p{2cm}|}
  \hline
   Repository \newline representation & Query \newline embedding model &  Repository embedding model & Top-10 \newline accuracy \\
  \hline 
+   Python files & BM25 & BM25 & 0.184 \\ 
+  Abstracts & BM25 & BM25 & 0.171 \\ 
   Abstract (topline)                 & Word2Vec              & Word2Vec                   &        \textit{0.828} \\
   README                    & Word2Vec              & Word2Vec                   &            \textbf{0.687} \\
   README                    & Word2Vec              & FastText                   &           0.466 \\
@@ -1102,12 +1136,15 @@ Topline was established by matching queries (tasks) with paper abstracts.
   Graph                     & Word2Vec              & GraphSAGE                            & 0.244         \\
  \hline
  \end{tabular}
- \end{center}
+\end{table}
+
 
 \section{Detailed results}
 
 More detailed results are shown that take into account not only literal task match, but also how many papers from related tasks (tasks from the same area as query) were retrieved. We also provide information about relative positions of recalled papers.
 
+{
+\color{red}
 \begin{center}
 \begin{tabular}{p{1cm}rrrrrr}
 \toprule
@@ -1134,10 +1171,92 @@ reasoning                   &     0.00 &         0.00 &          0.00 &         
 \bottomrule
 \end{tabular}
 \end{center}
+}
+
+\chapter{Future directions}
+
+\section{Data sources}
+
+\subsection{Social media features}
+
+Using github API it is possible to add information about repository usage -
+accounts that forked and starred a given repository are available.
+
+\subsection{Heterogenous graph}
+
+Heterogenous graphs are graphs that potentially have edges of different types\cite{hetero_graphs}.
+
+
+\subsection{Relations between repositories}
+
+Apart from using imports, which implicitly encode dependency hierarchy between
+repositories, our methods do not take into account relationships between
+repositories, at least explicitly. 
 
 \nocite{*}
 \bibliographystyle{plain}
 \bibliography{refs.bib}
 
+\appendix
+
+\chapter{Additional experiments}
+
+In this chapter we gather details of the experiments performed besides the ones
+that led to final models.
+
+Note that some of these approaches could lead to better results, but were
+considered less relevant or requiring effort not worth the improvement.
+
+
+\section{GNNs for Supervised learning}
+\label{supervised_learning}
+
+The following plots show the results of repository graph's area classification.
+
+For this we use graph neural network on top of features extracted using FastText.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.9\linewidth]{./img/graph_nn_area_training_losses.png}
+  \caption{Training metrics for area classification task (1 epoch)}
+\end{figure}
+
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.9\linewidth]{./img/graph_nn_task_training_losses.png}
+  \caption{Training metrics for multilabel task classification task (1 epoch)}
+\end{figure}
+
+\subsection{Shared query and code encoder}
+
+\label{shared_encoder}
+
+We trained cross-encoder based on ``microsoft/codebert-base'' model. 
+
+The model is a binary classifier that given a pair of texts outputs tells if
+they are related or similar.
+
+For positive pairs we use file contents and string containing PapersWithCode tasks of their repositories.
+
+Negative ones are obtained by using file contents with random tasks.
+
+The model appears to not learn anything useful - the reported metrics for 
+1:2 positive/negative sample ratio does not seem to be an improvement over random guessing. 
+
+\begin{center}
+  \begin{tabular}{|l|l|}
+    \toprule
+    weights & accuracy \\
+    random guessing baseline &     0.333 \\
+    \hline
+    before training &  0.331  \\
+    \hline
+    after training &     0.338  \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
 
 \end{document}
+
