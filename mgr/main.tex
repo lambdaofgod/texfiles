@@ -1,6 +1,6 @@
 % Created 2021-09-05 nie 17:17
 % Intended LaTeX compiler: pdflatex
-\documentclass[11pt]{report}
+\documentclass[longabstract,mgr,english]{iithesis}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
@@ -35,27 +35,31 @@
 \newcommand{\V}{\mathcal{V}}
 \newcommand{\E}{\mathcal{E}}
 \newcommand{\G}{\mathcal{G}}
-
+\newcommand{\TODO}{\textcolor{red}{\huge{TODO}}}
 
 \newcommand{\mb}{\mathbf}
 
-\newcommand\T{\rule{0pt}{2.6ex}}
-\newcommand\B{\rule[-1.2ex]{0pt}{0pt}}
-
 \setcounter{secnumdepth}{5}
-
-\titleformat{\paragraph}
-{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
-\titlespacing*{\paragraph}
-{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
-\usepackage[ruled, linesnumbered]{algorithm2e}
-\begin{document}
-\title{Searching Github Python repositories with machine learning}
 \author{Jakub Bartczuk}
+\advisor{dr Paweł Rychlikowski}
+\advisorgen{dr. Pawła Rychlikowskiego}
+\usepackage[ruled, linesnumbered]{algorithm2e}
+\englishtitle{Searching Github Python repositories with machine learning}
+\englishabstract{
+
+Search systems suffer greatly when there is a gap between queries and documents. Neural information retrieval is one approach that can be used for bridging that gap.
+
+We explore searching Github Python machine learning project repositories using natural languge. Several approaches are proposed approaches to address the drawbacks of standard information retrieval methods for Github search by leveraging structure of code repositories and NLP techniques for their natural language descriptions.
+
+To this end we propose semantic search system on top of features extracted from code.
+Specifically we propose a dataset for information retrieval on Github repositories using their natural language descriptions given by PapersWithCode tasks.
+Several methods are proposed for feature extraction from code are proposed and evaluated.
+}
+\begin{document}
+
 \maketitle
 
 \pagebreak
-
 {
   \vspace*{\fill}
   \mbox{}\hfill
@@ -74,7 +78,7 @@ As of 2021, we observe several years of increased adoption of neural network met
 capture various aspects of these datasets. As an evidence for that task one can
 point to transformer-based neural network models which are able to generate
 Python code. An example is OpenAI Codex
-\footnote{https://openai.com/blog/openai-codex/} \cite{codex}, which is reported to generate programs like simple backend APIs given their descriptions.
+\footnote{https://openai.com/blog/openai-codex/} \cite{codex}, which is reported to generate programs like simple backend applications given their descriptions.
 Even though the models aren't explicitly trained to generate code, the model is able to generate programs, because massive datasets used for training language models contain code.
 
 For example `gpt-neo-2.7B`, a model that is available in opensource huggingface library, asked to complete prompt:
@@ -93,10 +97,11 @@ A:
 
 Answers with "multiplication"
 
-There is increased interest in machine learning models for developer tools. Tools like Kite and Tabnine\footnote{https://github.com/codota/TabNine} use language models for improved autocomplete, which are already available for IDEs and text editors.
+There is increased interest in machine learning models for developer tools. Tools like Copilot, Kite and Tabnine \footnote{https://github.com/codota/TabNine} use language models for improved autocomplete, which are already available for IDEs and text editors.
 
+To utilize these models for search the simplest approach would be to use them for feature extraction. Codex is based on GPT-3 \footnote{We estimate that the cost of just embedding our corpus, which would be a preliminary step, would be around 5.5k USD as of January 2023, see \ref{OpenAI_API}} which is available as paid API for text embedding among other tasks. We also evaluated some code-related transformer models for code embeddings.
 
-In the following we propose a dataset and methods for searching Python machine learning repositories using natural language descriptions.
+In the following we propose a dataset and methods for searching Python machine learning repositories using natural language descriptions. We evaluate methods leveraging pretrained models and discuss their drawbacks.
 
 \section{Use cases}
 
@@ -105,7 +110,7 @@ Github repositories are a standard way to share open-source projects.
 Software engineers, and to a greater extent data scientists often encounter a situation where for a given novel problem they need to find a solution, possibly for a slightly different problem.
 This is especially important for a problem that might require machine learning, because this domain is far less standardized than traditional software engineering, and some data science problems might be divided into smaller suproblems which might need less known solutions.
 
-For an example take the task of developing system for reading information from billboards.
+Consider the task of developing system for reading information from billboards.
 Whereas some Optical Character Recognition methods are well explored, they are heavily biased towards regular text.
 If our solution has to read billboards that contain curved text, then we will have to use methods that are far less standardized than reading documents.
 In this problem, we know that these methods might underperform on curved text. Because of this we might try to search for curved text detection.
@@ -118,7 +123,7 @@ In this problem, we know that these methods might underperform on curved text. B
 Github (as of 2021) provides a search interface that can be used to search repository names, its README files, and topics.
 This functionality is good when we have a good idea for a query, but it suffers from usual problems of bag-of-words model of information retrieval.
 
-Our work can be described as improving Github's topic functionality. Topic labels (which are optionally specified by repository contributors) are very useful for information retrieval.
+Our work can be viewed as a proposition to improve Github's topic functionality. Topic labels (which are optionally specified by repository contributors) are very useful for information retrieval.
 Nonetheless, searching using topics has two problems:
 \begin{itemize}
 \item because they are optional, many projects have few or none topics specified
@@ -133,27 +138,26 @@ We propose to tackle this information retrieval problem by progressively relaxin
 \item repository \label{papers:code} has none of the above - only code is available 
 \end{enumerate}
 
-Each step of this hierarchy corresponds to growing usefulness of the system. In
+Each step means broader applicability of the system. In
 general we cannot assume that a repository will easily match any paper, and
 dropping README requirement might be helpful as it might make useful code
 accessible even before authors decide to summarize their work.
 
-Whereas coming from step \ref{papers:abstracts} and \ref{papers:readme} is
-straightforward, dropping single document representation of a repository poses a
-hard problem:
-
-\begin{itemize}
-\item standard information retrieval tools using bag-of-words model fail (because of vocabulary mismatch)
-\item embedding-based methods need to be adapted, because repository contains multiple code files
-  and aggregating embeddings is problematic
-\item even though there exist models that potentially can use both code  and
-  natural language as input, using pretrained models without finetuning results
-  in poor performance \ref{failed_experiments} 
-\end{itemize}
+Whereas going from step \ref{papers:abstracts} to \ref{papers:readme} is
+straightforward, dropping single document representation of a repository is much
+less obvious.
 
 \section{Papers with Code}
 
-Papers with Code is a service for machine learning researchers and practicioners that aims at bringing order to research publications. It extracts paper metadata so that papers for similar tasks may be grouped together, and compared if they provide results for the same problem. For our topic the most important are github implementation links and Papers with Code tasks.
+Papers with Code is a service for machine learning researchers and practicioners
+that aims at bringing order to research publications. It extracts paper metadata
+so that papers for similar tasks may be grouped together, and compared if they
+provide results for the same problem. For our topic the most important are
+github implementation links and Papers with Code tasks.
+
+We base our dataset on Papers with Code data because we can use tasks as queries
+and extract code and
+README files from paper impelemtations.
 
 The tasks are short descriptions of problems like Language Modeling or Semantic Segmentation.
 
@@ -251,11 +255,29 @@ Because of this, significant time is spent on finding useful code, either in for
 In their review paper Chao Liu et al \cite{code_search} propose several groups of issues \footnote{section \ref{codesearch} goes into more detail} faced by code search research . Our problem mostly tries to tackle challenges 3 (model fusion) and  and 5 (search tasks) because it is a novel search task. 
 Because of novelty we cannot use existing models trained on other tasks, so this work also tries to fuse different models or aggregate representations from different models.
 
+\section{Peculiarities of our problem}
+
+
+The problem we are trying to solve does not fit neatly with previous research
+
+\TODO code \& natural language
+
+\TODO aggregating search results
+
+
+\begin{itemize}
+\item standard information retrieval tools using bag-of-words model fail (because of vocabulary mismatch)
+\item embedding-based methods need to be adapted, because each repository contains multiple code files
+  and aggregating embeddings is problematic
+\item even though there exist models that potentially can use both code  and
+  natural language as input, using pretrained models without finetuning results
+  in poor performance \ref{failed_experiments} 
+\end{itemize}
+
 \section{Contributions}
 
-
-
-In the following we will work on addressing the drawbacks of standard bag-of-words Github search by leveraging structure of code repositories and NLP techniques for their natural language descriptions.
+In the following we will work on addressing the drawbacks of standard
+information retrieval methods for Github search by leveraging structure of code repositories and NLP techniques for their natural language descriptions.
 
 To this end we propose semantic search system on top of features extracted from code.
 
@@ -265,7 +287,7 @@ Several methods are proposed for feature extraction from code are proposed and e
 
 These approaches roughly fall into two categories:
 \begin{itemize}
-\item use structural properties of repositories (leveraging node embeddings obtained from Python dependency graph \footnote{defined in \ref{python-graph}})
+\item use structural properties of repositories (features based on Python dependency graph \footnote{defined in \ref{python-graph}})
 \item aggregate lower-level features extracted from code snippets
 \end{itemize}
 
@@ -288,11 +310,11 @@ Our problem is akin to multilingual search, and belongs to \textbf{multimodal} s
 
 In other words we are in the domain of Information Retrieval, but we cannot use classical techniques as-is because of vocabulary mismatch, and semantic gap between natural language and code. Traditional techniques based on inverted index and bag of words work very poorly in this case.
 
-TODO: przykład
+\TODO : przykład
 
 \subsubsection{Evaluating Information Retrieval}
 
-\section{[TODO] Neural Networks}
+\section{\TODO Neural Networks}
 
 
 (basic definitions)
@@ -376,15 +398,15 @@ Note that number of parameters for such network does not depend at sequence leng
 \includegraphics[width=.9\linewidth]{./img/RNN.png}
 \caption{folded (left) and unfolded (right) RNN diagram}
 \end{figure}
+\footnote{image from https://2d3d.ai/index.php/2019/11/11/the-deep-learning-dictionary/} 
 
 
-\let\thefootnote\relax\footnotetext{image from https://2d3d.ai/index.php/2019/11/11/the-deep-learning-dictionary/} 
 
 Procedure for training RNNs is called Backpropagation Through Time and is illustrated in the image above.
 This works almost like training regular feedforward network, but the parameters of connections for each step are tied.
 
 \begin{enumerate}
-\item\relax [TODO???] Problems with RNNs LSTM and Gated Units
+\item\relax \TODO Problems with RNNs LSTM and Gated Units
 
 
 \begin{itemize}
@@ -463,15 +485,13 @@ as it might figure out that for example "\(get\_http\_request\)" is not an atomi
 \end{enumerate}
 Although pretrained language models can be used to extract good representations in context, it remains a 
 
-\subsection{[TODO???] Attention and Transformer-based models}
+\subsection{[\TODO???] Attention and Transformer-based models}
 
-\subsubsection{Sentence embedding models}
+\section{Sentence embedding models}
 
-Although pretrained language models can be used to extract good representations in context, the representations of whole documents they provide are poor because they need a pooling step to represent a document.
+Although pretrained language models can be used to extract good token representations in context, the representations of whole documents they provide are poor because they require a lossy pooling step in order to return a fixed length vector.
 
-Because of this various methods were proposed to finetune 
-
-There are two most known ways to finetune pretrained transformers for search:
+There are two most known ways to finetune pretrained transformers for search\cite{sentence_transformers}: 
 
 \begin{enumerate}
     \item \textbf{bi-encoders} (also known as dual encoders).
@@ -483,9 +503,44 @@ There are two most known ways to finetune pretrained transformers for search:
     In this method a text that is a concatenation of query and relevant document is fed into a transformer model. The model itself outputs relevance score.
 \end{enumerate}
 
-In practice cross-encoders tend to give better results. This intuitively makes sense because they can use attention over tokens from query and document. 
+In practice cross-encoders tend to give better results. This is because they can attend to tokens from both query and document. 
 
 Unfortunately cross-encoders have serious drawback, as at search time they require running transformer for each document. Thus cross-encoders mostly remain useful for finetuning tasks. Bi-encoders are used widely because they only require extracting feature from each query, and finding matching documents can be used with vector search engines.
+
+\subsection{Bi-encoders}
+
+Bi-encoders predict relevancy scores for pairs of documents. There are several ways to define objective function for this task.
+
+\begin{enumerate}
+    \item binary classification (a document pair is relevant or not)
+    \item regression (for example using mean-squared error between predicted and actual relevancy, this approach fits naturally when the relevancy score is not binary)
+    \item loss functions used in metric learning
+\end{enumerate}
+
+\subsubsection{Metric learning}
+
+Similarity or metric learning\cite{metric-learning-reality} investigates predicting pairwise scores between vectors in general. These scores are based on simlarity or distance functions like Euclidean or cosine distance, hence the name.
+
+This is achieved using objective functions that operate on pairs or triplets of documents.\footnote[1]{There are other  Understanding Ranking Loss... \url{https://gombru.github.io/2019/04/03/ranking_loss/} provides a quick overview of objective functions  used in metric learning}
+
+Formally the input to pairwise objective function are the pairs of vectors $(v_i, v_j)$ with relevancy scores $r_ij$. We train a model to output such vectors that $d(v_i, v_j)$
+
+Examples of \textbf{pairwise objective functions} are
+\begin{enumerate}
+    \item multiple negatives ranking loss\cite{mnrl}\label{mnrl}
+    \item contrastive loss \footnote{Notably these functions are also used for contrastive feature learning. Examples include CLIP which is used by DALLE and Stable Diffusion.}
+\end{enumerate}
+
+Multiple negatives ranking loss (MNRL will be used in the following text) is a method  \TODO
+
+\textbf{Triplet objective functions} for each $(v_{anchor}, v_{pos}, v_{neg})$ capture the fact that $v_{anchor}$ is closer to $v_{pos}$ than it is to $v_{neg}$.
+Formally we can translate our expectation that $$d(v_{anchor}, v_{pos})\leq d( v_{anchor}, v_{neg})$$ to minimizing $$max(d(v_{anchor}, v_{pos}) - d( v_{anchor}, v_{neg}) + m, 0)$$ where $m$ is a positive margin hyperparameter.
+
+\subsubsection{Preparing data for metric learning}\label{metric_learning_data}
+
+Both pairwise and triplet losses require labeled input tuples. This is especially problematic for triplets.
+
+In practice there are ways \TODO
 
 \section{Zero-shot Learning}
 
@@ -499,7 +554,6 @@ Because it is impossible to transfer between seen to unseen classes using label 
 
 These features might be manually constructed as shown in the following image, or they might consist of NLP-extracted features of class names.
 
-To evaluate ZSL a protocol was proposed in \cite{zsl_good_bad} that takes into account the fact that accuracy on test set will be lower also because the classes were not seen - the authors propose to use harmonic mean of training/validation and test accuracies.
 
 \begin{figure}[htbp]
 \centering
@@ -507,7 +561,8 @@ To evaluate ZSL a protocol was proposed in \cite{zsl_good_bad} that takes into a
 \caption{samples from AWA2 dataset showing images and class features}
 \end{figure}
 
-\subsubsection{{\bfseries\sffamily TODO} - ZSL algorithms}
+To evaluate ZSL a protocol was proposed in \cite{zsl_good_bad} that takes into account the fact that accuracy on test set will be lower also because the classes were not seen - the authors propose to use harmonic mean of training/validation and test accuracies.
+
 
 
 \section{Graphs in Machine Learning}
@@ -598,8 +653,7 @@ and creating fixed size contexts from their neighbors.
 \caption{GraphSAGE: SAmple and AggregatE}
 \end{figure}
 
-\let\thefootnote\relax\footnotetext{image from http://snap.stanford.edu/graphsage/} 
-
+\footnote{image from http://snap.stanford.edu/graphsage/} 
 
 Formally, for each minibatch \(B\), \(K\) -layer GraphSAGE fetches embeddings of nodes sampled from \(K\) -hop neighborhoods of each \(u \in B\).
 
@@ -624,7 +678,7 @@ This is achieved by the following algorithm:
 
 
 
-\subsubsection{[TODO???] Deep Graph Infomax}
+\subsubsection{[\TODO???] Deep Graph Infomax}
 Method related to Masked Language Models
 
 
@@ -779,11 +833,9 @@ Comparing these methods is challenging, especially for larger networks, as some 
 We envision two search scenarios:
 
 \begin{enumerate}
-\item Looking for a single or a few relevant projects from a given domain: user is interested to retrieve at least one relevant project. Thus accuracy@$k$ is appropriate metric.
+\item Looking for a single or a few relevant projects from a given domain: user is interested to retrieve at least one relevant project. Thus accuracy@$k$ is appropriate metric. We select $k=10$ because we can reasonably expect users to look at first ten search results, and this value is close to the one provided by search engines.
 \item Browsing projects: user will be interested in having as many relevant projects as high as possible in result list. This can be captured using MAP (mean average precision).
 \end{enumerate}
-
-
 
 
 
@@ -797,15 +849,13 @@ We use two main ways to extract data for machine learning models:
 
 \begin{enumerate}
 
-\item paper's abstracts extracted from PapersWithCode data (used only in topline)
-
 \item Project READMEs extracted from repositories - a realistic search scenario
 
 \item Python function call graph extracted from codebase, based on Python Abstract Syntax Trees. 
 
 \end{enumerate}
 
-We performed \textbf{train-test split} selecting test queries as 20\% tasks from each PapersWithCode area.
+In addition we also use abstracts and titles extracted from PapersWithCode data (used only in topline)
 
 \section{Raw Data}
 
@@ -815,11 +865,11 @@ We use publicly available Papers with Code dataset \footnote{1 \url{https://gith
 
 It contains paper title, abstract, and links to both arxiv pdf and github repository.
 
-Dataset contains information about over 50 thousands papers and implementations.
+Dataset contains information about over 100k papers and implementations. We were able to crawl 50k of these.
 
 Using this data we can extract paper tasks. Tasks were filtered to remove rare ones that had less than 10 papers. Papers without any task that occured 10 times or more were dropped.
 
-There are TODO \textbf{tasks} that are used for queries. PapersWithCode groups them into areas:
+There are \TODO \textbf{tasks} that are used for queries. PapersWithCode groups them into areas:
 
 \begin{table}[htbp]
   \centering
@@ -850,11 +900,26 @@ There are TODO \textbf{tasks} that are used for queries. PapersWithCode groups t
   \end{tabular}
 \end{table}
 
+\section{Train-test split}
+
+We performed \textbf{train-test split} selecting test queries as 20\% tasks from each PapersWithCode area. 
+
+The train-test split is stratified to respect two criteria 
+\begin{enumerate}
+    \item both splits should have the same proportion of tasks from a given area
+    \item both splits should contain the same proportion of tasks grouped by count
+\end{enumerate}
+
+We achieve this by assigning a label that contains information about log count of repositories and area for a given task.
+
+
 \section{Extracted datasets}
 
-Inspired by Import2Vec we dig deeper into Python code.
+Inspired by Import2Vec we dig deeper into Python code. We crawled Python repositories that we were able to download from Github.
 
-\subsection{Python functions}
+The extracted dataset has 31M files.
+
+\subsection{Python signatures}
 
 
 \begin{center}
@@ -865,12 +930,22 @@ Inspired by Import2Vec we dig deeper into Python code.
 \end{figure}
 \end{center}
 
+We explored two methods for extracting signatures: heuristic-based and parsing (ast) based.
 
-Using ast \footnote{https://docs.python.org/3/library/ast.html} Python files were parsed and then used to extract class and function definitions.
+The heuristic method was chosen because it is more robust to Python version changes.
+
+Heuristic method \textbf{\textcolor{red}{\TODO}}
 
 
 \section{Python Dependency graph}
 \label{python-graph}
+
+Inspired by Import2Vec we explore parsing Python repositories by function call graphs. The dependency relation captures \textit{implementation} relation.
+
+This dependency graph is useful in two ways:
+
+- it can be used for feature extraction as an input to machine learning model with graph embedding methods
+- it can be used for feature selection by choosing relevant tokens from repositories
 
 \subsection{Vertices}
 
@@ -937,24 +1012,26 @@ A natural way to tackle this problem is to use word embeddings. In fact we make
 
 \textbf{Observation 1:} matching tasks with repository paper's abstract is a strong topline 
 
-Knowing repository's paper at test time is an unreasonable assumption, so we
+Knowing repository's paper at test time is an unreasonable assumption \footnote{this is less relevant for research papers because they reference the papers, but we are interested in searching repositories in general}, so we
 need to search for another baseline. In fact
 
 \textbf{Result 1:} matching repository READMEs forms a reasonable baseline
 
 Going beyond README assumption however requires a major leap. 
 
-\textbf{Issue 2:} there is no natural way to extract repository features 
+\textbf{Observation 2:} there is no single obvious way to extract repository-level features 
 
 In \ref{approach_feature_extraction} we explore feature extraction and
 some potential approaches that worked poorly. We start with word
-embeddings, which in turn face the following
+embeddings, which in turn face the following issues
 
-\textbf{Issue 3:} methods using repository file embeddings require aggregation
+\textbf{Issue 2:}\label{word_embedding_tokenization} some pretrained word embeddings like word2vec methods cannot be used as-is because Python files require different tokenization than natural language data.
 
-We propose to approach this using graph neural networks.
+\textbf{Issue 3:}\label{feature_aggregation} methods using repository code embeddings require aggregation
 
-\textbf{Observation 2:} graph neural networks are a way to solve aggregation problem
+We propose several approaches to tackle this issue.
+
+\textbf{Observation 3:} graph neural networks are a way to solve aggregation problem
 
 We illustrate aggregation methods first using supervised learning in \ref{supervised_learning}, because PapersWithCode
 repositories can be treated as multilabel classification dataset, and supervised
@@ -966,6 +1043,18 @@ the following issues using zero-shot learning.
 \textbf{Conclusion 1:} file-based approaches do not reach README approach performance
 
 \textbf{Conclusion 2:} it is possible to boost README baseline
+
+
+Our method falls in the similarity learning framework. Given our corpus $C$ we have input relevant documents $((d, d'), 1)$ where $d, d'$ have the same task;
+
+A training experiment is defined by:
+\begin{enumerate}
+    \item feature extraction method $F: \textit{Documents} \to \textit{Representations}$ (treated as hyperparameter)
+    \item an embedding model $Emb: \textit{Representations} \to \mathbb{R}^d$
+    \item pairwise objective function $L: \mathbb{R}^d \times \mathbb{R}^d \to \mathbb{R}$
+\end{enumerate}
+
+The model is trained to minimize $L(Emb(F(d)), Emb(F(d')))$
 
 \section{Classical information retrieval}
 \label{classical_ir}
@@ -1011,6 +1100,19 @@ We use several methods to extract repository features
         \item {\color{red} embeddings extracted from ULMFiT recurrent neural network \cite{ulmfit}}
       \end{itemize}
 \end{itemize}
+
+
+\section{Matching queries with repositories}
+
+Our main methods use pairwise scoring functions used to train information retrieval models.
+
+Used methods:
+\begin{itemize}
+    \item multiple negatives ranking loss
+\end{itemize}
+
+\textbf{\textcolor{red}{\TODO}}
+
 
 \section{Supervised learning}
 
@@ -1082,33 +1184,9 @@ Our system can be decomposed into two separate parts:
 
 \end{enumerate}
 
-\textbf{Matching queries with repositories}
-
-We propose to use Zero-shot learning (ZSL) methods because potentially there is a need to match representations from different domains,
-
-for example FastText embeddings for query and graph-based embeddings of repository.
--\footnote{in fact, some ZSL methods use ranking objective, like \cite{label_embedding}}. 
-
-Existing Zero-shot learning methods typically model similarity between entities that use different representations.
-
-This naturally fits our problem as most information retrieval models use
-query-document similarities to find most relevant documents.
-
-\subsection{Proxy ZSL problem}
-
-
-Zero-shot learning algorithms are used for matching task \(\phi(t)\) features
-with repository \(\psi(r)\) features. Using these features ZSL model comes up
-with a scoring function $F(t, r)$ that measures how well repository $r$ matches
-task $t$. Using \(F(t, r)\) learned with ZSL methods we score task-repository similarities and for a given repository retrieve top \(k\) matched tasks.
-
 \subsection{Combining approaches}
 
-With zero-shot learning approach different features can be handled in a natural
-way. In our work we combine readme features with graph features.
-
-This approach is not without its issues though. {\color{red} The model had to be
-chosen carefully, because its number of parameters is $O(dim(\psi(r)) \cdot dim(\phi(t))$}
+\TODO
 
 \chapter{Results}
 
@@ -1122,15 +1200,19 @@ Topline was established by matching queries (tasks) with paper abstracts.
 \begin{table}[htbp]
   \centering
   \caption{Evaluation results on test set. Topline in italics, best result in bold.}
- \begin{tabular}{ |p{3cm}|p{2cm}|p{2cm}|p{2cm}|}
+ \begin{tabular}{|p{4cm}|p{3cm}|p{2cm}|p{2cm}|p{1cm}|}
  \hline
   Repository \newline representation & Query \newline embedding model &  Repository embedding model & Top-10 \newline accuracy \\
  \hline 
    Python files & BM25 & BM25 & 0.184 \\ 
   Abstracts & BM25 & BM25 & 0.171 \\ 
-  Abstract (topline)                 & Word2Vec              & Word2Vec                   &        \textit{0.828} \\
-  README                    & Word2Vec              & Word2Vec                   &            \textbf{0.687} \\
+  README                    & Word2Vec              & Word2Vec                   &            0.633 \\
+  Truncated README                    & Word2Vec              & Word2Vec                   &            0.724 \\
   README                    & Word2Vec              & FastText                   &           0.466 \\
+                                           titles (topline) &        NBOW &             NBOW &           \textbf{0.8399} \\
+                   readme &        NBOW &             NBOW &           0.5817 \\
+             dependencies &        NBOW &             NBOW &           0.5359 \\
+       function\_signature &        NBOW &             NBOW &           0.4608 \\
   Imports                   & Word2Vec              & Import2Vec                 &        0.206 \\
   Graph                     & Word2Vec              & ProNE                      &            0.100 \\
   Graph                     & Word2Vec              & GraphSAGE                            & 0.244         \\
@@ -1199,14 +1281,42 @@ repositories, at least explicitly.
 
 \appendix
 
-\chapter{Additional experiments}
+\chapter{Details}
 
+\section{Full list of models}
+
+We use nonstandard tokenization because it is not obvious that BPE works well with word embeddings
+
+Simple attention over tokens
+
+There are some nontrivial details when it comes for graph node selection
+
+\chapter{Other experiments}
+\section{failed_experiments}
 In this chapter we gather details of the experiments performed besides the ones
 that led to final models.
 
-Note that some of these approaches could lead to better results, but were
-considered less relevant or requiring effort not worth the improvement.
+\section{Zero-shot learning}
 
+
+We propose to use Zero-shot learning (ZSL) methods because potentially there is a need to match representations from different domains,
+
+
+for example FastText embeddings for query and graph-based embeddings of repository.
+-\footnote{in fact, some ZSL methods use ranking objective, like \cite{label_embedding}}. 
+
+Existing Zero-shot learning methods typically model similarity between entities that use different representations.
+
+This naturally fits our problem as most information retrieval models use
+query-document similarities to find most relevant documents.
+
+\subsection{Proxy ZSL problem}
+
+
+Zero-shot learning algorithms are used for matching task \(\phi(t)\) features
+with repository \(\psi(r)\) features. Using these features ZSL model comes up
+with a scoring function $F(t, r)$ that measures how well repository $r$ matches
+task $t$. Using \(F(t, r)\) learned with ZSL methods we score task-repository similarities and for a given repository retrieve top \(k\) matched tasks.
 
 \section{GNNs for Supervised learning}
 \label{supervised_learning}
@@ -1257,6 +1367,73 @@ The model appears to not learn anything useful - the reported metrics for
   \end{tabular}
 \end{center}
 
+\chapter{Misc}
+
+\label{OpenAI_API}
+\section{OpenAI API}
+
+As of January 2023 OpenAI embeddings API price is 0.0004 USD per 1000 tokens.
+
+We sampled 100k files from ~3M crawled files corpus and extracted
+tokens.\footnote{we are using GPT-2 tokenizer which to the best of our knowledge
+  is also used in GPT-3}
+With 4421.6 tokens per file on average, 3 169 680 documents it would cost 5606
+USD \footnote{this is assuming the cheapest Ada model with cost of 0.0004 USD
+  per 1k tokens}just to embed our dataset.
+
+
+For another comparison see \href{https://medium.com/@nils_reimers/openai-gpt-3-text-embeddings-really-a-new-state-of-the-art-in-dense-text-embeddings-6571fe3ec9d9
+}{Nils Reimer's blogpost} where GPT-3 models were compared with sentence-transformer models
+
+\section{ChatGPT}
+
+ChatGPT, a closed OpenAI model most likely based on InstructGPT\cite{instruct_gpt} outperforms opensource models in describing Python files.
+
+Our corpus contains file $apply\_bpe.py$
+
+When prompted by
+\begin{quotation}
+  \textbf{
+    A Python file apply\_bpe.py contains functions encode, segment and get\_pairs. This file implements 
+  }
+\end{quotation}
+
+It answers
+
+\begin{quotation}
+  the Byte Pair Encoding (BPE) algorithm.
+BPE is a data compression algorithm that is used to reduce the vocabulary size of large text corpora. It works by iteratively replacing the most frequent pair of bytes in the text with a single, unused byte. The process is
+\end{quotation}
+
+Given this prompt opensource models \textit{eleuther/gpt-j6B}\cite{gpt-j},
+\textit{Salesforce/codet5-base-multi-sum}\cite{bloom} perform much worse:
+
+\paragraph{\textit{eleuther/gpt-j6B} }
+
+\begin{quotation}
+the two phases of the bi-prefix encoding step (see Figure 4).
+
+The encode phase consists of calling the encode function.
+\end{quotation}
+
+\begin{quotation}
+the base language models trained in the previous section. The model for which we trained data consists of a vocabulary of 2.067 words
+\end{quotation}
+
+\paragraph{\textit{bigscience/bloom}}
+
+\begin{quotation}
+the behavior to produce a collection of test files with a valid left boundary and a right boundary of N
+\end{quotation}
+
+\begin{quotation}
+  the multi-level ontology matching framework proposed by the authors of [8]. The source code can be found
+\end{quotation}
+
+Unfortunately ChatGPT does not expose any API as of February 2023. Assuming the
+pricing model of GPT-3 it would cost 75-3710 USD \footnote{the cost of embedding
+1k token ranges from 0.0004 to 0.02 USD} to run all prompts from our
+signatures corpus in the format we used to query ChatGPT.
 
 \end{document}
 
