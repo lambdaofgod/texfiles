@@ -38,8 +38,7 @@
 \newcommand{\TODO}{\textcolor{red}{\huge{TODO}}}
 
 \newcommand{\mb}{\mathbf}
-
-\setcounter{secnumdepth}{5}
+setcounter{secnumdepth}{5}
 \author{Jakub Bartczuk}
 \advisor{dr Paweł Rychlikowski}
 \advisorgen{dr. Pawła Rychlikowskiego}
@@ -130,7 +129,9 @@ Nonetheless, searching using topics has two problems:
 \item topic names are not standardized, so repositories for synonymous topics are not trivial to find
 \end{itemize}
 
-We propose to tackle this information retrieval problem by progressively relaxing  assumptions: 
+We propose to tackle this information retrieval problem using progressively
+relaxed  
+assumptions: 
 
 \begin{enumerate}
 \item repository \label{papers:abstracts} is described by paper abstract
@@ -138,14 +139,22 @@ We propose to tackle this information retrieval problem by progressively relaxin
 \item repository \label{papers:code} has none of the above - only code is available 
 \end{enumerate}
 
-Each step means broader applicability of the system. In
+Each step of this hierarchy corresponds to growing usefulness of the system. In
 general we cannot assume that a repository will easily match any paper, and
 dropping README requirement might be helpful as it might make useful code
 accessible even before authors decide to summarize their work.
 
-Whereas going from step \ref{papers:abstracts} to \ref{papers:readme} is
-straightforward, dropping single document representation of a repository is much
-less obvious.
+Whereas coming from step \ref{papers:abstracts} and \ref{papers:readme} is
+straightforward, dropping single document representation of a repository poses a
+hard problem:
+
+\begin{itemize}
+\item methods need to change, because repository contains multiple code files
+  and there is no single natural way to represent a set of files.
+\item even though there exist models that potentially can use both code  and
+  natural language as input, using pretrained models without finetuning results
+  in poor performance \ref{failed_experiments} 
+\end{itemize}
 
 \section{Papers with Code}
 
@@ -1070,6 +1079,7 @@ problems it tries to solve are typically not mentioned in implementation.
 
 \textbf{Query features}
 
+<<<<<<< HEAD
 
 We evaluate several methods for extracting representations from PapersWithCode task names:
 \begin{itemize}
@@ -1105,6 +1115,9 @@ We use several methods to extract repository features
 \section{Matching queries with repositories}
 
 Our main methods use pairwise scoring functions used to train information retrieval models.
+=======
+\section{Representation}
+>>>>>>> 6ba48ec67eeb3aaed804c3bef20f1d50e2cbe98e
 
 Used methods:
 \begin{itemize}
