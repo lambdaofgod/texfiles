@@ -95,7 +95,7 @@ If we restrict neural network weights to be orthogonal we sidestep the exploding
 	% Coordinate axis
 	\draw[thick,->] (0,0,0) -- (\xf+0.25,0,0) node [below] {$x$}; % Eje x
 	\draw[thick,->] (0,0,0) -- (0,\yf+0.25,0) node [right] {$y$}; % Eje y
-	\draw[thick,->] (0,0,0) -- (0,0,\h+0.5,0) node [above] {$\phi(x,y) = (x, y, f(x,y))$};
+	\draw[thick,->] (0,0,0) -- (0,0,\h+0.5,0) node [above] {$w = \phi(v) = \phi(x,y) = (x, y, f(x,y))$};
 	% The region in the xy plane
 	\draw[white] (\a,\d,0) -- (\b,\d,0) node [black,below,sloped,midway] {$R$};
 	\fill[gray!25] (\a,\c,0) -- (\b,\c,0) -- (\b,\d,0) -- (\a,\d,0) -- (\a,\c,0);
@@ -118,7 +118,7 @@ If we restrict neural network weights to be orthogonal we sidestep the exploding
 		\draw[blue,thick,opacity=0.85] plot[domain=\c:\d,smooth,variable=\t] ({\x},{\t},{funcion(\x,\t)});
 	\foreach \y in {\c,\d}
 		\draw[blue,thick,opacity=0.85] plot[domain=\a:\b,smooth,variable=\t] ({\t},{\y},{funcion(\t,\y)});
-\end{tikzpicture}
+   \end{tikzpicture}
 \end{center}
 
 
