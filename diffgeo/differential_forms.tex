@@ -1,0 +1,413 @@
+% Created 2023-09-09 Sat 15:02
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usetikzlibrary{math}
+\usepackage{tikz-3dplot}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\date{\today}
+\pgfplotsset{compat=1.16}
+\title{differential\textsubscript{forms}}
+\hypersetup{
+ pdfauthor={},
+ pdftitle={differential\textsubscript{forms}},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.6.1)},
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\href{../../shared/org/roam/20230816150914-diff_geo.org}{diff\textsubscript{geo}}
+
+\href{20230905142646-hyperbolic_half_space.org}{hyperbolic\textsubscript{half}\textsubscript{space}}
+
+\section{Introduction}
+\label{sec:orgd51c1ec}
+
+In physics and increasingly in machine learning one oftentimes runs into situations which are naturally expressed using non-euclidean spaces or curved subsets of euclidean space:
+
+\begin{itemize}
+\item movement along a circle or an ellipse
+\item trajectories that are solutions of differential equations
+\item spherical embeddings (constant positive curvature)
+These arise naturally when using cosine similarity in machine learning
+\item hyperbolic embeddings (constant negative curvature)
+The  hyperbolic spaces can be thought of as continuous analog of trees \footnote{The trees cannot be in general embedded in Euclidean spaces with arbitrarily low distortions. In a hyperbolic space such embeddings exist\cite{sarkar}.}
+\item subsets of matrices
+PCA can be formulated as optimization on matrices of fixed rank \footnote{This formulation is problematic because the subset of matrices of rank \(r\) is not a convex set which makes optimization hard, so standard formulation of PCA sidesteps this. In spite of this issue that approach has theoretical significance because it makes generalizations easier to see (because of relationship to Grassmanian manifold).}
+\item subgroups of matrix groups
+These subgroups, which are actually Lie groups, are important in robotics and in deep learning.
+If we restrict neural network weights to be orthogonal we sidestep the exploding/vanishing gradient problem\footnote{There approach was used for recurrent neural networks\cite{kiani22_projun.} The exploding/vanishing gradient problem stems from the fact that multiplying matrices \(M = M_0 ... M_n\) when \(|det(M_i)| \neq 1\) can lead to \(det(M) = 0\) (vanishing) or \(det(M)\) growing (exploding)}.
+\end{itemize}
+
+\begin{center}
+\tdplotsetmaincoords{80}{100}
+%
+\begin{tikzpicture}[tdplot_main_coords,scale=1.5]
+	% the function $z = f(x,y)$
+	\tikzmath{function funcion(\x,\y) {return 1.125+0.25*sin((0.5*\x + 1.5*\y) r);};}
+	\pgfmathsetmacro{\step}{pi/50.0} % step size
+	\pgfmathsetmacro{\xi}{0}	% initial value for x
+	\pgfmathsetmacro{\xf}{1.0*pi}	% final value for x
+	\pgfmathsetmacro{\xe}{\xf+\step}
+	\pgfmathsetmacro{\xs}{\xi+\step}
+	\pgfmathsetmacro{\yi}{0}	% initial value for y
+	\pgfmathsetmacro{\yf}{1.0*pi}	% final value for y
+	\pgfmathsetmacro{\ys}{\yi+\step}
+	\pgfmathsetmacro{\ye}{\yf+\step}
+	\pgfmathsetmacro{\h}{1.0}
+	% Limits of the region in the xy plane
+	\pgfmathsetmacro{\a}{0.75}
+	\pgfmathsetmacro{\b}{\a+1.5}
+	\pgfmathsetmacro{\c}{1.0}
+	\pgfmathsetmacro{\d}{\c+1.5}
+	% Location of the differential of surface area
+	\pgfmathsetmacro{\px}{(0.45*\a+0.55*\b)}
+	\pgfmathsetmacro{\py}{0.5*(\c+\d)}
+	\pgfmathsetmacro{\dx}{0.25}
+	\pgfmathsetmacro{\dy}{0.25}
+	\pgfmathsetmacro{\dz}{0.25}
+	% Point A (\a,\c,0)
+	\pgfmathsetmacro{\zA}{funcion(\a,\c)}
+	\pgfmathsetmacro{\zB}{funcion(\b,\c)}
+	\pgfmathsetmacro{\zC}{funcion(\b,\d)}
+	\pgfmathsetmacro{\zD}{funcion(\a,\d)}
+	\pgfmathsetmacro{\zdA}{funcion(\px,\py)}
+	\pgfmathsetmacro{\zdB}{funcion(\px+\dx,\py)}
+	\pgfmathsetmacro{\zdC}{funcion(\px+\dx,\py+\dy)}
+	\pgfmathsetmacro{\zdD}{funcion(\px,\py+\dy)}
+	%
+	\pgfmathsetmacro{\pz}{0.35*(\zA)}
+	% Coordinate axis
+	\draw[thick,->] (0,0,0) -- (\xf+0.25,0,0) node [below] {$x$}; % Eje x
+	\draw[thick,->] (0,0,0) -- (0,\yf+0.25,0) node [right] {$y$}; % Eje y
+	\draw[thick,->] (0,0,0) -- (0,0,\h+0.5,0) node [above] {$\phi(x,y) = (x, y, f(x,y))$};
+	% The region in the xy plane
+	\draw[white] (\a,\d,0) -- (\b,\d,0) node [black,below,sloped,midway] {$R$};
+	\fill[gray!25] (\a,\c,0) -- (\b,\c,0) -- (\b,\d,0) -- (\a,\d,0) -- (\a,\c,0);
+	\draw[dash dot dot] (\a,\c,0) -- (\b,\c,0) -- (\b,\d,0) -- (\a,\d,0) -- (\a,\c,0);
+	% Indicating distances for $\Delta x$
+	\draw[dash dot dot] (\px,\py,0) -- (\px,0,0);
+	% Indicating distances for $\Delta y$
+	\draw[dash dot dot] (0,\py,0) -- (\px,\py,0);
+	% Differential of area $dA$
+	\draw[dash dot dot] (\px,\py,0) -- (\px,\py,\zdA);
+	% The surface: first quadrant
+	\foreach \x in {0,\step,...,\xf}{
+		\draw[cyan,opacity=0.5] plot[domain=0:\yf,smooth,variable=\t] ({\x},{\t},{funcion(\x,\t)});
+	}
+	\foreach \y in {0,\step,...,\yf}{
+		\draw[cyan,opacity=0.5] plot[domain=0:\yf,smooth,variable=\t] ({\t},{\y},{funcion(\t,\y)});
+	}
+	% The graph of $z = f(x,y)$ bounding the region of integration
+	\foreach \x in {\a,\b}
+		\draw[blue,thick,opacity=0.85] plot[domain=\c:\d,smooth,variable=\t] ({\x},{\t},{funcion(\x,\t)});
+	\foreach \y in {\c,\d}
+		\draw[blue,thick,opacity=0.85] plot[domain=\a:\b,smooth,variable=\t] ({\t},{\y},{funcion(\t,\y)});
+\end{tikzpicture}
+\end{center}
+
+
+These nonlinear spaces which are called \emph{manifolds} are studied by differential geometry.
+Einstein's special and general relativity are celebrated theories that use such curved spaces.
+
+The language for describing manifolds is provided by tensor methods and differential forms. Differential geometry of curves, surfaces and noneuclidean geometry\footnote{Noneuclidean geometry is the geometry of spaces with constant nonzero curvature. Euclidean geometry postulates that given a line \(l\) there exist only single line \(l'\) that contains a specified point and does not intersect \(l\). In \emph{spherical geometry} there is no such \(l'\), and in \emph{hyperbolic geometry} there are infinitely many such lines. These properties can be taken to replace the Euclidean parallel postulate.} was studied without this language, but nonconstant curvature in higher dimensions gives rise to complex expressions which are made easier with tensors, and especially differential forms.
+
+Differential forms are a language that is alternative to tensor methods used by physicists. They can be thought of as a higher level interface to tensors that makes it easier to define and prove many important properties.
+
+1st introductory chapter from Flanders' book on differential forms\footnote{Harley Flanders, \emph{Differential Forms with applications to the Physical Sciences}, Dover Books on Mathematics.} contains a very clear comparison between differential forms and tensor methods used by physicists.
+
+\begin{quote}
+It usually takes a mathematical theory 50 years to go from its conception to applications. Mathematicians came up with exterior form calculus at the beggining of XXc. From 40s to 60s it was crucial for the rebirth of differential geometry. Physicists then started realizing its usefulness; possibly it will also get adopted in the techical sciences.
+\end{quote}
+
+\section{Why differential forms}
+\label{sec:org237bfeb}
+
+In differential geometry tensors are like Javascript, differential forms are like Haskell.
+
+\subsection{Differential forms make stuff easier}
+\label{sec:orgf29de6e}
+
+Differential forms make it easy to relate qualitative properties of tensor\footnote{scalars and wectors are also tensors in this sense} fields to manifold geometry/topology
+
+\begin{itemize}
+\item making sense of expressions like \(x\ dx\)
+\item defining stuff on manifolds
+\item integration on manifolds
+\item Stokes' theorem (it follows directly from definitions)
+This encompasses Green's, Gauss-Ostrogradsky's theorems
+\item obstructions to existence of differential equations solutions (concrete example of tensor field property)
+\item defining symplectic and Riemannian/Lorentzian structure
+\end{itemize}
+
+
+\subsection{What is a differential form actually?}
+\label{sec:orga7d436c}
+
+\subsubsection{Forms}
+\label{sec:org847db67}
+Differential \$k\$-form, \(\phi \in Alt_k(TM)\) is linear combination of expressions like
+
+\(\phi = dx_1 dx_2 ... dx_k = dx_1 \wedge dx_2 \wedge ... \wedge dx_k = \bigwedge_i dx_i\)
+
+Where \(Alt_k(TM)\) is the space of \emph{alternating \$k\$-tensors}
+
+\subsubsection{Tensors (in mathematics)}
+\label{sec:orgd87c1b2}
+
+Tensor (in mathematics) is, for a given \(k\), a \$k\$-linear form on some vector space \(V\)
+
+The space of \$k\$-tensors is denoted by \(\bigotimes_k V\)
+
+This is because a \(k\) - tensor is a combination of basic tensors of the form
+
+\(t_1 \otimes t_2 \otimes ... \otimes t_k\)
+
+Which given a \(v\) works like
+
+\((t_1 \otimes t_2 \otimes ... \otimes t_k)(v) = \Pi_i t_i(v)\)
+
+\subsubsection{Alternating tensors}
+\label{sec:orgc332540}
+
+A tensor \(\phi\) is \emph{alternating} if \(\phi(w_1, ..., w_i, w_{i+1}, ... w_k) = - \phi(w_1, ..., w_{i+1}, w_i, ... w_k)\)
+
+That is, for a transposition permutation of inputs its walue is negated \footnote{This actually means that for any permutation \(\sigma\), \(\phi(w_1, ..., w_k) = sign(\sigma) \phi(w_{\sigma(1)}, ..., w_{\sigma(k)})\)}
+
+Note that \(w_i\) is not \(w\)'s index, every \(w_i \in V\)
+
+The space of such tensors is denoted by \(Alt_k(V) = \bigwedge_k V \subset \bigotimes_k V\)
+
+\begin{enumerate}
+\item Alternation - existence (can be skipped on first reading)
+\label{sec:orgb40ad84}
+
+Every such tensor is a linear combination of basic alternating tensors which are obtained by \(alt\) operation
+
+Let's pack \(w_1, ..., w_k\) into a \(k \times n\) matrix \(W\)
+
+For a permutation \(\sigma \in S_k\) we'll denote a matrix with rows (\$w\textsubscript{i}\$s) permuted by \(\sigma\) as \(W_{\sigma}\)
+
+\(\phi(W) = alt(\psi)(W) = c_{k, n} \sum_{\sigma \in S_k} sign(\sigma) \psi(W_{\sigma})\)
+
+\(c_{k, n}\) is a normalization constant that is added to make this operation linear.
+
+This in particular means that for a \(\psi = \psi_1 \otimes \psi_2 \in V \otimes V\)
+
+\(alt(\psi)(w_1, w_2) = \alt(\psi_1 \otimes \psi_2)(w_1, w_2) = \frac{1}{2}((\psi_1 \otimes \psi_2)(w_1, w_2) - (\psi_1 \otimes \psi_2)(w_2, w_1))\)
+
+\(\phi = alt(\psi)\) is also denoted by \(\phi = \psi_1 \wedge \psi_2\), hence the wedge
+\end{enumerate}
+
+
+\subsubsection{Examples}
+\label{sec:org1241bf1}
+
+\(Alt_0(TM)\) is a scalar field
+
+\(Alt_1(TM)\) is a vector field
+
+\(Alt_n(TM)\) is at most onedimensional (depending on \(M\)'s orientability
+If it is onedimensional, the generator is called \emph{element of volume} (it corresponds to matrix determinant)
+
+For open \(U \subset \mathbb{R}^n\)
+
+The basic \(\phi \in \bigwedge_k TU\) looks like
+
+
+
+$$\phi = g dx_1 \wedge ... \wedge dx_k$$
+
+Where \(g\) is a differentiable \(g: U \to \mathbb{R}\)
+
+\subsubsection{Exterior derivative}
+\label{sec:org5ab7b16}
+
+For basic \(\phi \in \bigwedge_k TU\), \(\phi = g dx_1 \wedge ... \wedge dx_k\)
+
+$$d(\phi) = \sum_{1 \leq i \leq k} \frac{\partial g}{\partial x_i}  dx_1 \wedge ... dx_{i-1} \wedge d_{x+1} ... \wedge dx_k$$
+
+Thus \(d\) is a linear operation
+
+$$d_k: \bigwedge_k TU \to \bigwedge_{k+1} TU$$
+
+A form is \emph{closed} if \(d(\phi) = 0\) (\(\phi \in ker(d)\))
+
+A form is \emph{exact} if \(\phi = d(\alpha)\)
+
+
+\subsubsection{Exterior derivative properties}
+\label{sec:org3a0ded1}
+\textbf{The most important property}
+
+\(d_{k+1}(d_k(\alpha)) = 0\)
+
+This property means that \(Im(d_{k}) \subset Ker(d_{k+1})\)
+
+This property means that we can define \textbf{cohomology} of \(\bigwedge TM\)
+
+Whenever \(f: A \to B\) and \(\alpha \in \bigwedge TB\), \(\alpha = g dx_1, .. dx_k\) we have
+
+\(f_{*}(\alpha) = g \circ f dx_1, .. dx_k\)
+
+Thus \(f_{*}: TB \to TA\)
+
+\subsubsection{Integration}
+\label{sec:org4c10101}
+
+If we have \(A = f(s)\) where \(s\) is a \(d\) - dimensional (oriented) simplex
+
+And \(\phi \in \bigwedge TA\)
+
+We define
+
+\(\int_A \phi = \int_s f_{*}(\phi)\)
+
+Thus basically we reduced integration on a manifold to integrating on simplices.
+
+\subsubsection{Stokes' theorem}
+\label{sec:orgefbf849}
+
+Now we defined \(d\) we can formulate the theorem
+
+$$\int_A d\alpha = \int_{\partial A} \alpha$$
+
+\textbf{\textbf{this is a generalization of fundamental theorem of calculus}}
+
+\(\int_{[a,b]} F' = \int_{\{a,b\}} F = F(b) - F(a)\)
+
+\begin{enumerate}
+\item Proof
+\label{sec:org6b41b54}
+Because \(\int_A\) is defined in terms integrating a function on a simplex,
+it suffices to prove it for \(d\) -dimensional simplices
+which is a basic calculation.
+\end{enumerate}
+
+\subsubsection{Stokes' theorem - particular examples}
+\label{sec:orge7bd661}
+
+If \(\alpha\) is a zero-form, \(\alpha_x = g(x)\)
+
+\(d(\alpha) = \sum \frac{\partial g}{\partial x_i} dx_i\)
+
+Which is actually the gradient \(\nabla g\) (turn this into a vector by forgetting \(dx_{i}\))
+
+In this Case
+
+\(\int_A \nabla g = \int_{\partial A} g\)
+
+This means that \textbf{\textbf{the integral of rate of change of a function on a region is equal to integral of this function on the region's boundary}}
+
+In particular if \(A\) is closed \(\partial A = \emptyset\)
+
+In which case \(\int_A \nabla g = 0\)
+
+\begin{enumerate}
+\item Exact forms
+\label{sec:orgdaad73a}
+
+In case \(\alpha = d(\beta)\) is exact we have
+
+\(\int_{\partial A} \alpha = \int_A d(\alpha) = \int_A d(d(\beta)) = 0\)
+
+\textbf{\textbf{this means that an integral of an exact form over a \emph{cycle} \(B = \partial A\) is zero}}
+
+\item Green's theorem
+\label{sec:orgdf67586}
+
+Let \(G\) be a vector field, in other words \(G = \sum \frac{\partial g}{\partial x_i} dx_i\)
+
+In this case
+$$d(G) = \sum_{i,j} (\frac{\partial g}{\partial x_i} - \frac{\partial g}{\partial x_j}) dx_i dx_j$$
+
+In particular if \(n = 3\) we get \(d(G) = \nabla \times G\) so
+
+\(\int_A \nabla \times G = \int_{\partial A} G\)
+\end{enumerate}
+
+
+\subsubsection{When is an closed form exact?}
+\label{sec:orga32b6ff}
+
+
+\begin{enumerate}
+\item Cohomology
+\label{sec:orgc6ced4e}
+
+\item Poincare's lemma
+\label{sec:orgaae1bb6}
+
+If \(A\) is contractible then a closed form is exact
+
+In terms of cohomology it basically means that simply connected set has trivial cohomologies
+
+
+\item A form that is closed but not exact
+\label{sec:orgd4179a1}
+
+Poincare's lemma gives guidance for finding such a form - use    -\(X = \mathbb{R}^2 - \{0\}\) which is not contractible.
+
+Topologically \(0\) is a hole that will be used as a singularity.
+
+We can specify a continuous function that has such a singularity - this behaviour will mean that our function represents topological property of \(X\) having a hole.
+
+Define
+
+\(f_1(x, y) = \frac{y}{x^2 + y^2}\)
+\(f_2(x, y) = - \frac{x}{x^2 + y^2}\)
+
+In this situation we are trying to find \(F\) such that \(\nabla F = (f_1, f_2)\)
+
+For example \(\frac{\partial F(x,y)}{\partial y} = \frac{x}{(x^2+y^2)}\)
+
+\begin{enumerate}
+\item Form
+\label{sec:org105b747}
+
+Let \(f(x, y) = f_1(x,y) dx + f_2(x,y) dy =  \frac{y dx - x dy}{x^2 + y^2}\)
+
+Then \(df = 0\)
+
+We ask if there exists \(\alpha = F(x, y) dxdy\), \(d(\alpha) = f\)
+
+By substituting \(x = cos(\theta)\), \(1 = r^2 = x^2 + y^2\) et c,
+
+Let \(G(\theta) = F(cos(\theta), sin(\theta))\)
+
+Let \(A = S^1 \subset X\) and use the substitution
+
+Then \(d(G) = (\frac{\partial F(x,y)}{\partial x} sin(\theta) -  \frac{\partial F(x,y)}{\partial y} cos(\theta)) d\theta = d\theta\)
+
+\item Contradiction
+\label{sec:org98d33e4}
+
+On the one hand
+\(\int_A f = \int_A d(F) = \int_{\partial A} F = 0\)
+
+On the other
+
+\(\int_{A} dF = \int_{[0,2 \pi]} dG = \int_{[0, 2 \pi]} d\theta = 2 \pi\)
+
+This means no such \(F\) can exist so \(f\) is not exact.
+\end{enumerate}
+\end{enumerate}
+
+\section{oth\$d(\(\alpha\)) = \frac{\partial F}{\partial x} dx}
+\label{sec:orge538b03}
+\end{document}
